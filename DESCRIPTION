@@ -1,11 +1,51 @@
 Package: TEVRA
-Title: What the Package Does (One Line, Title Case)
+Title: Computes and Maps AIRR Features onto Transcriptionally Defined Neighbourhoods
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Grace", "Hattersley", , "gracehattersley@gmail.com", role = c("aut", "cre")),
+    person("Grace", "Hattersley", role = "aut", "cre")
+Description: TEVRA takes as input paired scRNA-seq and scBCR/TCR-seq data after
+    standard preprocessing. Transcriptional neighbourhoods can be defined from
+    are defined via Leiden clustering of a k-nearest-neighbour graph, or the 
+    user can supply assignments obtained from established methods (Milo, 
+    metacell etc). For each neighbourhood, TEVRA computes repertoire features 
+    including receptor recovery, clonal expansion and diversity, CDR3-receptor 
+    convergence and, for B cells, SHM and isotype composition, including 
+    appropriate normalisation for neighbourhood size, sampling depth and CDR3 
+    sequence length, where relevant. Computed features are then assigned back 
+    onto neighbourhoods for visualisation and downstream analysis.
+License: use_mit_license("Grace Hattersley")
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 8.1.0
+Depends:
+    R (>= 4.1.0)
+Imports:
+    dplyr (>= 1.0.0),
+    ggplot2 (>= 3.4.0),
+    igraph (>= 1.3.0),
+    rlang,
+    scales,
+    S4Vectors,
+    SingleCellExperiment,
+    stats,
+    SummarizedExperiment,
+    tools,
+    utils
+Suggests:
+    BiocParallel,
+    Biostrings,
+    ggbeeswarm,
+    iNEXT,
+    knitr,
+    MASS,
+    Matrix,
+    miloR,
+    pheatmap,
+    pwalign,
+    rmarkdown,
+    scran,
+    Seurat,
+    vegan
+biocViews:
+Config/roxygen2/version: 8.1.0
+VignetteBuilder: knitr
