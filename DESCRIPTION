@@ -1,12 +1,10 @@
 Package: TEVRA
 Title: Computes and Maps AIRR Features onto Transcriptionally Defined Neighbourhoods
 Version: 0.0.0.9000
-Authors@R: 
-    person("Grace", "Hattersley", , "gracehattersley@gmail.com", role = c("aut", "cre")),
-    person("Grace", "Hattersley", role = "aut", "cre")
+Authors@R: person("Grace", "Hattersley", , "gracehattersley@gmail.com", role = c("aut", "cre"))
 Description: TEVRA takes as input paired scRNA-seq and scBCR/TCR-seq data after
-    standard preprocessing. Transcriptional neighbourhoods can be defined from
-    are defined via Leiden clustering of a k-nearest-neighbour graph, or the 
+    standard preprocessing. Transcriptional neighbourhoods can be defined via 
+    Leiden clustering of a k-nearest-neighbour graph, or the 
     user can supply assignments obtained from established methods (Milo, 
     metacell etc). For each neighbourhood, TEVRA computes repertoire features 
     including receptor recovery, clonal expansion and diversity, CDR3-receptor 
@@ -14,7 +12,7 @@ Description: TEVRA takes as input paired scRNA-seq and scBCR/TCR-seq data after
     appropriate normalisation for neighbourhood size, sampling depth and CDR3 
     sequence length, where relevant. Computed features are then assigned back 
     onto neighbourhoods for visualisation and downstream analysis.
-License: use_mit_license("Grace Hattersley")
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
@@ -49,3 +47,7 @@ Suggests:
 biocViews:
 Config/roxygen2/version: 8.1.0
 VignetteBuilder: knitr
+LazyData: true
+LazyDataCompression: xz
+URL: https://github.com/grace-hattersley/TEVRA
+BugReports: https://github.com/grace-hattersley/TEVRA/issues
