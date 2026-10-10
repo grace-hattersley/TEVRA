@@ -28,7 +28,6 @@ tevra_example
 
 ## Create communities
 ```{r test_resolution}
-metadata(tevra_example)$graphs
 res_results <- test_resolution(tevra_example,
                                graph.name = "RNA_snn",
                                resolutions = c(0.5,1,2.5,5,10,20),
@@ -36,7 +35,7 @@ res_results <- test_resolution(tevra_example,
 head(res_results)
 ```
 
-```{r plot_resolution_results}
+```{r plot_resolution_results, fig.width = 6, fig.height = 6}
 plot_resolution_results(res_results, 
                         show_error_bars = TRUE)
 ```
@@ -54,14 +53,13 @@ head(communities$communities_summary)
 sce_obj <- communities$sce
 ```
 
-```{r plot_nhood_sizes}
+```{r plot_nhood_sizes, fig.width = 7, fig.height = 6}
 plot_nhood_sizes(communities$communities_summary)
 ```
 
 ## Neighbourhood nevel analysis
 ### Compute neighbourhood UMAP
 ```{r nhood_umap}
-colnames(sce_obj@colData)
 sce_obj <- nhood_umap(sce_obj,
                       nhood_col = "community_id",
                       aggregate_fun = "median",
@@ -130,7 +128,7 @@ sce_obj <- merge_nhood_results(object = sce_obj,
 
 ## Plot
 ### UMAP
-```{r plot_nhood_umap}
+```{r plot_nhood_umap, fig.width = 7, fig.height = 6}
 cell_umap_coords <- as.data.frame(reducedDims(sce_obj)$UMAP)
 summary(row.names(cell_umap_coords) == row.names(colData(sce_obj)))
 cell_umap_coords$community_id <- colData(sce_obj)$community_id
@@ -149,13 +147,13 @@ plot_nhood_umap(metadata(sce_obj)$merged_nhood_analysis,
 ```
 
 ### Capture efficiency
-```{r plot_capture_efficiency}
+```{r plot_capture_efficiency, fig.width = 7, fig.height = 6}
 plot_capture_efficiency(nhood_diversity_df = metadata(sce_obj)$merged_nhood_analysis, 
                         group_by = "Bcelltype") 
 ```
 
 ### Beeswarm
-```{r plot_nhood_beeswarm}
+```{r plot_nhood_beeswarm, fig.width = 7, fig.height = 12}
 plot_nhood_beeswarm(metadata(sce_obj)$merged_nhood_analysis,
                     plot_cols = c("clone_per_contig" , "inv.simpson_diversity"),
                     reliability_col = "diversity_reliable",
@@ -166,7 +164,7 @@ plot_nhood_beeswarm(metadata(sce_obj)$merged_nhood_analysis,
 ```
 
 ### Scatter plot
-```{r plot_nhood_scatter}
+```{r plot_nhood_scatter, fig.width = 7, fig.height = 6}
 plot_nhood_scatter(metadata(sce_obj)$merged_nhood_analysis,
                    x_col = "inv.simpson_diversity",
                    y_col = "CDR3_converge_score_VDJ",
