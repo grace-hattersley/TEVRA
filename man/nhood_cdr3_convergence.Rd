@@ -2,14 +2,14 @@
 % Please edit documentation in R/nhood_cdr3_convergence.R
 \name{nhood_cdr3_convergence}
 \alias{nhood_cdr3_convergence}
-\title{Compute CDR3 amino acid convergence scores across Milo neighbourhoods}
+\title{Compute CDR3 amino acid convergence scores across neighbourhoods}
 \usage{
 nhood_cdr3_convergence(
   object,
   nhood_col = NULL,
   receptor_type = c("BCR", "TCR"),
-  aa_col,
   chain = c("VDJ", "VJ", "both"),
+  aa_col,
   clone_id_col = NULL,
   min_n_contigs = 20L,
   min_clones = NULL,
@@ -44,6 +44,11 @@ pairwise distance to all other members of the same clone). For TCR,
 unique sequences are used directly as representatives. Ignored if
 \code{clone_id_col} is \code{NULL}.}
 
+\item{chain}{Character string; one of \code{"VDJ"} (default), \code{"VJ"},
+or \code{"both"}. Determines which receptor chain(s) are analysed. When
+\code{chain = "both"}, \code{aa_col} must be a named character vector with
+elements \code{"VDJ"} and \code{"VJ"} (see \code{aa_col}).}
+
 \item{aa_col}{Character string or named character vector specifying the
 \code{colData} column(s) containing CDR3 amino acid sequences. When
 \code{chain} is \code{"VDJ"} or \code{"VJ"}, supply a single column name.
@@ -52,11 +57,6 @@ and \code{"VJ"}, e.g.:
 \code{aa_col = c(VDJ = "cdr3_aa_heavy", VJ = "cdr3_aa_light")}.
 Cells with \code{NA}, empty string, \code{"No_contig"}, or \code{"None"}
 in the relevant column are excluded from analysis.}
-
-\item{chain}{Character string; one of \code{"VDJ"} (default), \code{"VJ"},
-or \code{"both"}. Determines which receptor chain(s) are analysed. When
-\code{chain = "both"}, \code{aa_col} must be a named character vector with
-elements \code{"VDJ"} and \code{"VJ"} (see \code{aa_col}).}
 
 \item{clone_id_col}{Character string; name of the \code{colData} column
 containing clone identifiers (e.g. output from a clonotyping tool).
@@ -285,9 +285,9 @@ are averaged across iterations.
 
 \subsection{Supported distance methods}{
 
-The function supports three distance methods — Levenshtein edit distance,
-BLOSUM62-derived substitution cost, and a user-supplied custom matrix — all
-normalised to \eqn{[0, 1]} by the length of the longer sequence in each
+The function supports three distance methods: Levenshtein edit distance,
+BLOSUM62-derived substitution cost, and a user-supplied custom matrix, all
+normalised to 0-1 by the length of the longer sequence in each
 pair.
 }
 
@@ -366,6 +366,6 @@ sce <- nhood_cdr3_convergence(
 \seealso{
 \code{\link[pwalign]{stringDist}} for the underlying alignment engine.
 \code{\link[BiocParallel]{BiocParallelParam}} for parallelisation options.
-\code{\link{calculate_nhood_diversity}}, \code{\link{calculate_nhood_shm}},
+\code{\link{nhood_diversity}}, \code{\link{nhood_shm}},
 \code{\link{nhood_annotation}}, \code{\link{nhood_annotation_props}}
 }

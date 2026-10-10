@@ -117,7 +117,8 @@ Multi-column mode (plot_cols): when more than one column is supplied,
 the data are pivoted to long format and each column becomes a row of panels.
 }
 \examples{
-# Single-metric plot (equivalent to old plot_celltype_diversity_beeswarm)
+\dontrun{
+# Single-metric plot
 plot_nhood_beeswarm(
   nhood_data      = nhood_data,
   plot_cols       = "shannon_diversity",
@@ -126,7 +127,7 @@ plot_nhood_beeswarm(
   subtitle        = paste0("Reliable estimates (>=", attr(nhood_data, "min_bcr_tcr"), " BCR/TCR)")
 )
 
-# Multi-column plot (equivalent to old plot_nhood_ccall_beeswarm)
+# Multi-column plot
 plot_nhood_beeswarm(
   nhood_data = ccall_df,
   plot_cols  = c("IgA", "IgG", "IgM"),
@@ -143,6 +144,7 @@ plot_nhood_beeswarm(
   size_by    = "nhood_size",
   size       = c(1, 6)
 )
+}
 
 }
 \seealso{

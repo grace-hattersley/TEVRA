@@ -14,6 +14,168 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(TEVRA)
+library(SingleCellExperiment)
+
+set.seed(0)
 ```
+
+```{r load-data}
+data(tevra_example)
+tevra_example
+```
+
+## Create communities
+```{r test_resolution}
+metadata(tevra_example)$graphs
+res_results <- test_resolution(tevra_example,
+                               graph.name = "RNA_snn",
+                               resolutions = c(0.5,1,2.5,5,10,20),
+                               min_cells = 5)
+head(res_results)
+```
+
+```{r plot_resolution_results}
+plot_resolution_results(res_results, 
+                        show_error_bars = TRUE)
+```
+
+```{r create_communities}
+communities <- create_communities(tevra_example,
+                                  graph.name = "RNA_snn",
+                                  resolution = 5,
+                                  min_cells = 5,
+                                  feature.col = "nFeature_RNA",
+                                  count.col = "nCount_RNA")
+communities
+head(communities$communities_summary)
+
+sce_obj <- communities$sce
+```
+
+```{r plot_nhood_sizes}
+plot_nhood_sizes(communities$communities_summary)
+```
+
+## Neighbourhood nevel analysis
+### Compute neighbourhood UMAP
+```{r nhood_umap}
+colnames(sce_obj@colData)
+sce_obj <- nhood_umap(sce_obj,
+                      nhood_col = "community_id",
+                      aggregate_fun = "median",
+                      result_name   = "nhood_umap")
+
+head(metadata(sce_obj)$nhood_umap)
+```
+
+### Neighbourhood annotation
+```{r nhood_annotation}
+sce_obj <- nhood_annotation(object = sce_obj,
+                            annotation_cols = "Bcelltype",
+                            nhood_col = "community_id",
+                            threshold = 0.5,
+                            result_name = "nhood_annotation")
+
+head(metadata(sce_obj)$nhood_annotation)
+```
+
+### Neighbourhood diversity
+```{r nhood_diversity}
+sce_obj <- nhood_diversity(sce_obj,
+                           nhood_col = "community_id",
+                           clone_id_col = "CTstrict_BCR",
+                           cdr3_col = "CTnt_BCR",
+                           min_n_contigs = 10,
+                           metrics = c("shannon", "inv.simpson", "gini.simpson", "chao1"),
+                           downsample_method = "rarefaction",
+                           n_boots = 100,
+                           feature_scale = FALSE,
+                           result_name = "nhood_diversity")
+
+head(metadata(sce_obj)$nhood_diversity)
+```
+
+### Neighbourhood cdr3 convergence
+```{r nhood_cdr3_convergence}
+sce_obj <- nhood_cdr3_convergence(object = sce_obj,
+                                  nhood_col ="community_id",
+                                  receptor_type = "BCR",
+                                  chain = c("both"),
+                                  aa_col = c(VDJ = "CTaa_BCR_IGH", VJ = "CTaa_BCR_IGL"),
+                                  clone_id_col = "CTstrict",
+                                  min_n_contigs = 10,
+                                  min_clones = NULL,
+                                  distance_method = "levenshtein", 
+                                  summary_metric = "converge_score",
+                                  downsample = TRUE,
+                                  n_boots = 100,
+                                  BPPARAM = BiocParallel::SerialParam(),
+                                  result_name = "nhood_cdr3_convergence") 
+
+head(metadata(sce_obj)$nhood_cdr3_convergence)
+```
+
+### Merge neighbourhood-level analysis
+```{r merge_nhood_results}
+sce_obj <- merge_nhood_results(object = sce_obj,
+                               dataframe_names = c("nhood_umap", "nhood_annotation", 
+                                "nhood_diversity", "nhood_cdr3_convergence"),
+                               merge_key = "nhood",
+                               size_col = "nhood_size",
+                               verbose = TRUE,
+                               result_name = "merged_nhood_analysis")
+```
+
+## Plot
+### UMAP
+```{r plot_nhood_umap}
+cell_umap_coords <- as.data.frame(reducedDims(sce_obj)$UMAP)
+summary(row.names(cell_umap_coords) == row.names(colData(sce_obj)))
+cell_umap_coords$community_id <- colData(sce_obj)$community_id
+
+plot_nhood_umap(metadata(sce_obj)$merged_nhood_analysis,
+                nhood_col = "nhood",
+                x_col = "median_UMAP_1",
+                y_col = "median_UMAP_2",
+                fill_by = "Bcelltype",
+                show_cells = T,
+                cell_umap_coords = cell_umap_coords,
+                cell_x_col = "umap_1",
+                cell_y_col = "umap_2",
+                cell_colour_by = "nhood",
+                cell_nhood_col = "community_id")
+```
+
+### Capture efficiency
+```{r plot_capture_efficiency}
+plot_capture_efficiency(nhood_diversity_df = metadata(sce_obj)$merged_nhood_analysis, 
+                        group_by = "Bcelltype") 
+```
+
+### Beeswarm
+```{r plot_nhood_beeswarm}
+plot_nhood_beeswarm(metadata(sce_obj)$merged_nhood_analysis,
+                    plot_cols = c("clone_per_contig" , "inv.simpson_diversity"),
+                    reliability_col = "diversity_reliable",
+                    group_by = "Bcelltype",
+                    summary_metric = "group_median",
+                    colour_by = "Bcelltype",
+                    size_by = "nhood_size")
+```
+
+### Scatter plot
+```{r plot_nhood_scatter}
+plot_nhood_scatter(metadata(sce_obj)$merged_nhood_analysis,
+                   x_col = "inv.simpson_diversity",
+                   y_col = "CDR3_converge_score_VDJ",
+                   x_reliability_col = "diversity_reliable",
+                   y_reliability_col = "VDJ_converge_score_reliable",
+                   colour_by = "Bcelltype",
+                   size_by = "nhood_size")
+```
+
+
+
+

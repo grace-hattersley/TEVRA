@@ -8,7 +8,7 @@ nhood_umap(
   object,
   nhood_col = "neighbourhood_id",
   aggregate_fun = "mean",
-  result_name = "nhood_umap"
+  result_name = "community_id"
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ converted via \code{\link[Seurat]{as.SingleCellExperiment}}
 before use.}
 
 \item{nhood_col}{Character string. Name of the \code{colData} column that
-assigns each cell to a neighbourhood. Default: \code{"neighbourhood_id"}.}
+assigns each cell to a neighbourhood. Default: \code{"community_id"}.}
 
 \item{aggregate_fun}{Character string. Aggregation function used to compute
 neighbourhood centroids. Must be one of \code{"mean"} (arithmetic mean;
@@ -62,16 +62,16 @@ is emitted and the entry is overwritten.
 \examples{
 \dontrun{
 # --- Mean centroids (default) ---------------------------------------------
-sce <- compute_nhood_umap(
+sce <- nhood_umap(
   object    = sce_object,
-  nhood_col = "neighbourhood_id"
+  nhood_col = "community_id"
 )
 umap_df <- S4Vectors::metadata(sce)[["nhood_umap"]]
 
 # --- Median centroids -----------------------------------------------------
-sce <- compute_nhood_umap(
+sce <- nhood_umap(
   object       = sce_object,
-  nhood_col    = "neighbourhood_id",
+  nhood_col    = "community_id",
   aggregate_fun = "median"
 )
 umap_df <- S4Vectors::metadata(sce)[["nhood_umap"]]

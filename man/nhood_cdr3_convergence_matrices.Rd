@@ -98,7 +98,7 @@ per neighbourhood instead of summarising the convergence scores.
 \examples{
 \dontrun{
 # Extract convergence matrices for three neighbourhoods
-conv_mats <- get_nhood_cdr3_distance_matrices(
+conv_mats <- nhood_cdr3_convergence_matrices(
   object        = milo_object,
   nhood_ids     = c("5", "12", "27"),
   receptor_type = "BCR",

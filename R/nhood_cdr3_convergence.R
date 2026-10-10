@@ -1,4 +1,4 @@
-#' Compute CDR3 amino acid convergence scores across Milo neighbourhoods
+#' Compute CDR3 amino acid convergence scores across neighbourhoods
 #'
 #' Computes a per neighbourhood summary convergence statistic of pairwise CDR3
 #' amino acid sequence distances between B cell receptor (BCR) or T cell
@@ -256,9 +256,9 @@
 #' }
 #'
 #' ## Supported distance methods
-#' The function supports three distance methods — Levenshtein edit distance,
-#' BLOSUM62-derived substitution cost, and a user-supplied custom matrix — all
-#' normalised to \eqn{[0, 1]} by the length of the longer sequence in each
+#' The function supports three distance methods: Levenshtein edit distance,
+#' BLOSUM62-derived substitution cost, and a user-supplied custom matrix, all
+#' normalised to 0-1 by the length of the longer sequence in each
 #' pair.
 #'
 #' ## Downsampling depth
@@ -287,7 +287,7 @@
 #' @seealso
 #' \code{\link[pwalign]{stringDist}} for the underlying alignment engine.
 #' \code{\link[BiocParallel]{BiocParallelParam}} for parallelisation options.
-#' \code{\link{calculate_nhood_diversity}}, \code{\link{calculate_nhood_shm}},
+#' \code{\link{nhood_diversity}}, \code{\link{nhood_shm}},
 #' \code{\link{nhood_annotation}}, \code{\link{nhood_annotation_props}}
 #'
 #' @examples
@@ -337,8 +337,8 @@
 nhood_cdr3_convergence <- function(object,
                                    nhood_col = NULL,
                                    receptor_type = c("BCR", "TCR"),
-                                   aa_col,
                                    chain = c("VDJ", "VJ", "both"),
+                                   aa_col,
                                    clone_id_col = NULL,
                                    min_n_contigs = 20L,
                                    min_clones = NULL,
@@ -858,7 +858,7 @@ nhood_cdr3_convergence <- function(object,
     e <- new.env(parent = emptyenv())
     utils::data("BLOSUM62", package = "pwalign", envir = e)
     if (is.null(e$BLOSUM62)) {
-      stop("Could not load BLOSUM62 from pwalign — the dataset may have been renamed in this version of the package.")
+      stop("Could not load BLOSUM62 from pwalign - the dataset may have been renamed in this version of the package.")
     }
     blosum62_raw <- e$BLOSUM62
     blosum62     <- blosum62_raw[aa_alphabet, aa_alphabet]
@@ -1109,7 +1109,7 @@ nhood_cdr3_convergence <- function(object,
         member_seqs <- unique(aa_seqs[clone_ids == cid])
 
         if (length(member_seqs) == 1L) {
-          # Singleton or all-identical clone — centroid is the only sequence
+          # Singleton or all-identical clone: centroid is the only sequence
           return(match(member_seqs, unique_seqs))
         }
 
@@ -1151,7 +1151,7 @@ nhood_cdr3_convergence <- function(object,
       next
     }
 
-    # Edge case: single representative — distance is 0
+    # Single representative: distance is 0
     if (n_reps == 1L) {
       result[[ch]] <- list(
         n_contigs                    = n_contigs,
@@ -1181,7 +1181,7 @@ nhood_cdr3_convergence <- function(object,
     can_compute_knn <- effective_n > resolved_k
 
     if (!downsample || n_reps <= downsample_depth) {
-      # No downsampling needed — summarise centroid matrix directly.
+      # No downsampling needed, summarise centroid matrix directly.
       dist_summary <- .summarise_dist_mat(rep_dist_mat, n_reps = n_reps, knn_k = resolved_k,
                                           summary_metric = summary_metric)
 
@@ -1343,7 +1343,7 @@ nhood_cdr3_convergence <- function(object,
 #' (excluding the self-comparison on the diagonal). Computes the mean distance
 #' to those neighbours per sequence, then averages across all sequences.
 #'
-#' This captures local sequence density — a neighbourhood of tightly clustered
+#' This captures local sequence density: a neighbourhood of tightly clustered
 #' sequences will have a low converge_score even if some outliers inflate the
 #' global convergence score. Ties at position \eqn{k} are broken by index
 #' order. \eqn{k} is capped at \eqn{n - 1} to guard against small bootstrap

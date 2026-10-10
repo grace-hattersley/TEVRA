@@ -6,17 +6,17 @@
 #' contig count against neighbourhood size (with a linear fit) to check
 #' whether capture scales as expected with neighbourhood size.
 #'
-#' @param object The neighbourhood-level metadata data frame generated as
-#'   the output of nhood_diversity, containing at minimum the columns
+#' @param nhood_diversity_df The neighbourhood-level metadata data frame
+#' generated as the output of nhood_diversity, containing at minimum the columns
 #'   \code{contig_capture_rate}, \code{n_contigs} and
 #'   \code{nhood_size}.
 #' @param group_by Character scalar giving the name of a column in
-#'   \code{object} to colour/facet points by (e.g. cell type, timepoint, or
+#'   \code{nhood_diversity_df} to colour/facet points by (e.g. cell type, timepoint, or
 #'   tissue). If \code{NULL} (the default) or not found in
-#'   \code{colnames(object)}, all neighbourhoods are treated as a single
+#'   \code{colnames(nhood_diversity_df)}, all neighbourhoods are treated as a single
 #'   "All" group.
 #'
-#' @return A named list of two \code{ggplot} objects:
+#' @return A named list of two \code{ggplot} nhood_diversity_dfs:
 #'   \describe{
 #'     \item{capture_rate}{Jittered boxplot of \code{contig_capture_rate} by
 #'       \code{group_by}, with point size scaled to \code{nhood_size}.}
@@ -27,7 +27,7 @@
 #'
 #' @details
 #' If \code{group_by} is supplied but is not already a factor, it is
-#' coerced to one internally; the input \code{object} itself is not
+#' coerced to one internally; the input \code{nhood_diversity_df} itself is not
 #' modified. This function is purely a visualisation wrapper and does not
 #' perform any capture-rate calculation itself.
 #'
@@ -47,9 +47,9 @@
 #'
 #' @export
 #'
-plot_capture_efficiency <- function(object, group_by = NULL) {
+plot_capture_efficiency <- function(nhood_diversity_df, group_by = NULL) {
 
-  plot_data <- object
+  plot_data <- nhood_diversity_df
 
   if (!is.null(group_by) && group_by %in% colnames(plot_data)) {
     if (!is.factor(plot_data[[group_by]])) {

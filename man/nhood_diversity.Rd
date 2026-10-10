@@ -243,5 +243,5 @@ sce <- nhood_diversity(
 }
 \seealso{
 \code{\link{nhood_shm}}, \code{\link{nhood_cdr3_convergence}},
-\code{\link{nhood_annotation}}, \code{\link{nhood_annotation_prop}}
+\code{\link{nhood_annotation}}, \code{\link{nhood_annotation_props}}
 }

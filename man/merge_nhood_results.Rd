@@ -6,7 +6,7 @@
 \usage{
 merge_nhood_results(
   object,
-  dataframe_names = c("nhood_diversity", "shm_results"),
+  dataframe_names = c("nhood_diversity", "nhood_shm"),
   merge_key = "nhood",
   size_col = "nhood_size",
   verbose = TRUE,
@@ -18,7 +18,7 @@ merge_nhood_results(
 neighbourhood analysis results in its metadata slot.}
 
 \item{dataframe_names}{Character vector of metadata slot names to merge.
-Defaults to \code{c("nhood_diversity", "shm_results")}. Must contain at
+Defaults to \code{c("nhood_diversity", "nhood_shm")}. Must contain at
 least two names.}
 
 \item{merge_key}{Column to merge on (default: \code{"nhood"}).}
@@ -27,7 +27,7 @@ least two names.}
 to validate that all dataframes describe the same neighbourhoods. Can be a
 single string (same column name expected in all dataframes) or a named
 character vector mapping each dataframe name to its size column, e.g.
-\code{c(nhood_data = "nhood_size", shm_results = "n_cells")}. Dataframes
+\code{c(nhood_data = "nhood_size", nhood_shm = "n_cells")}. Dataframes
 not present in a named vector fall back to \code{"nhood_size"}.
 Set to \code{NULL} to skip the size consistency check entirely.}
 
@@ -84,21 +84,22 @@ different values are retained with \code{_1} / \code{_2} suffixes.
 }
 }
 \examples{
-# Default: merge "nhood_diversity" and "shm_results"
+\dontrun{
+# Default: merge "nhood_diversity" and "nhood_shm"
 object <- merge_nhood_results(object)
 
 # Merge three custom dataframes
 object <- merge_nhood_results(
   object,
-  dataframe_names = c("diversity_results", "shm_results", "spatial_features")
+  dataframe_names = c("diversity_results", "nhood_shm", "spatial_features")
 )
 
 # Dataframes use different column names for neighbourhood size
 object <- merge_nhood_results(
   object,
-  dataframe_names = c("diversity_results", "shm_results", "spatial_features"),
+  dataframe_names = c("diversity_results", "nhood_shm", "spatial_features"),
   size_col = c(diversity_results = "nhood_size",
-               shm_results       = "n_cells",
+               nhood_shm         = "n_cells",
                spatial_features  = "size")
 )
 
@@ -108,7 +109,7 @@ object <- merge_nhood_results(
   dataframe_names = c("results_a", "results_b"),
   result_name     = "combined_results",
   merge_key       = "NhoodID"
-)
+}
 
 }
 \seealso{

@@ -171,14 +171,14 @@ Layer order (bottom to top): cells → edges → neighbourhood centroids.
 \dontrun{
 # --- Neighbourhood centroids coloured by assigned cell type ---------------
 plot_nhood_umap(
-  nhood_umap = sce@metadata$coords,
+  nhood_umap = nhood_df,
   fill_by    = "CD8",
   colour     = celltype_colours
 )
 
 # --- Neighbourhood centroids with default palette -------------------------
 plot_nhood_umap(
-  nhood_umap = sce@metadata$coords,
+  nhood_umap = nhood_df,
   fill_by    = "CD8"
 )
 
@@ -195,10 +195,10 @@ plot_nhood_umap(
   fill_by           = "CD8",
   colour            = celltype_colours,
   show_edges        = TRUE,
-  nhood_connections = CD8@misc$mc2d$graph,
+  nhood_connections = connections_df,
   show_cells        = TRUE,
   cell_umap_coords  = cell_df,
-  cell_colour_by   = "nhood",
+  cell_colour_by    = "nhood",
   cell_nhood_col    = "nhood_id"
 )
 
@@ -209,7 +209,7 @@ plot_nhood_umap(
   colour           = celltype_colours,
   show_cells       = TRUE,
   cell_umap_coords = cell_df,
-  cell_colour_by  = "timepoint",
+  cell_colour_by   = "timepoint",
   cell_colour      = c(Pre = "#8da0cb", On = "#fc8d62")
 )
 }

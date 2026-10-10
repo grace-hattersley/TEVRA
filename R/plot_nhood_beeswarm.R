@@ -70,7 +70,8 @@
 #' \code{\link{nhood_cdr3_convergence}}, \code{\link{plot_nhood_scatter}}
 #'
 #' @examples
-#' # Single-metric plot (equivalent to old plot_celltype_diversity_beeswarm)
+#' \dontrun{
+#' # Single-metric plot
 #' plot_nhood_beeswarm(
 #'   nhood_data      = nhood_data,
 #'   plot_cols       = "shannon_diversity",
@@ -79,7 +80,7 @@
 #'   subtitle        = paste0("Reliable estimates (>=", attr(nhood_data, "min_bcr_tcr"), " BCR/TCR)")
 #' )
 #'
-#' # Multi-column plot (equivalent to old plot_nhood_ccall_beeswarm)
+#' # Multi-column plot
 #' plot_nhood_beeswarm(
 #'   nhood_data = ccall_df,
 #'   plot_cols  = c("IgA", "IgG", "IgM"),
@@ -96,6 +97,7 @@
 #'   size_by    = "nhood_size",
 #'   size       = c(1, 6)
 #' )
+#' }
 #'
 #' @importFrom ggplot2 ggplot aes scale_y_discrete scale_x_continuous
 #'                     geom_vline geom_segment scale_colour_gradient2 scale_colour_discrete
