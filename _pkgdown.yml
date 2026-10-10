@@ -1,0 +1,37 @@
+url: https://grace-hattersley.github.io/TEVRA/
+template:
+  bootstrap: 5
+
+reference:
+- title: Neighbourhood construction
+  desc: Define transcriptional neighbourhoods and choose a clustering resolution.
+  contents:
+  - test_resolution
+  - plot_resolution_results
+  - create_communities
+  - plot_nhood_sizes
+  - nhood_umap
+- title: Neighbourhood annotation
+  desc: Assign cell type labels and composition to each neighbourhood.
+  contents:
+  - nhood_annotation
+  - nhood_annotation_props
+- title: Repertoire metrics
+  desc: Compute receptor repertoire features for each neighbourhood.
+  contents:
+  - nhood_diversity
+  - nhood_shm
+  - nhood_cdr3_convergence
+  - nhood_cdr3_convergence_matrices
+  - merge_nhood_results
+- title: Visualisation
+  desc: Plot neighbourhood-level results.
+  contents:
+  - plot_nhood_umap
+  - plot_nhood_beeswarm
+  - plot_nhood_scatter
+  - plot_capture_efficiency
+- title: Example data
+  contents:
+  - tevra_example
+

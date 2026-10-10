@@ -57,7 +57,7 @@ sce_obj <- communities$sce
 plot_nhood_sizes(communities$communities_summary)
 ```
 
-## Neighbourhood nevel analysis
+## Neighbourhood level analysis
 ### Compute neighbourhood UMAP
 ```{r nhood_umap}
 sce_obj <- nhood_umap(sce_obj,
