@@ -54,7 +54,7 @@ sce_obj <- nhood_diversity(sce_obj,
 For `Milo` objects, the function will extract the `nhoods` matrix directly
 
 ```r
-sce_obj <- nhood_cdr3_convergence(object = milo_obj,
+milo_obj <- nhood_cdr3_convergence(object = milo_obj,
                                   nhood_col = NULL,
                                   receptor_type = "BCR",
                                   chain = c("both"),
