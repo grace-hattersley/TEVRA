@@ -85,7 +85,7 @@
 #'   object,
 #'   dataframe_names = c("results_a", "results_b"),
 #'   result_name     = "combined_results",
-#'   merge_key       = "NhoodID"
+#'   merge_key       = "NhoodID")
 #' }
 #'
 #' @export
