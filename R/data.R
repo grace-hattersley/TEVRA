@@ -19,7 +19,6 @@
 #'         Seurat's \code{CellCycleScoring()}}
 #'       \item{\code{Phase}}{Assigned cell cycle phase (G1, S or G2M)}
 #'       \item{\code{Bcelltype}}{B cell subset annotation}
-#'       \item{\code{neighbourhood_id}}{Transcriptional neighbourhood assignment}
 #'       \item{\code{CTgene_BCR}}{V(D)J and constant gene usage of the heavy and
 #'         light chains}
 #'       \item{\code{CTnt_BCR}}{CDR3 nucleotide sequences of the heavy and
@@ -37,7 +36,23 @@
 #'       \item{\code{CTaa_BCR_IGL}}{Light chain CDR3 amino acid sequence}
 #'     }
 #'   }
+#'   \item{metadata}{List of additional objects:
+#'     \describe{
+#'       \item{\code{graphs}}{Cell-cell graphs computed on the full gene set
+#'         with Seurat's \code{FindNeighbors()}:
+#'         \describe{
+#'           \item{\code{RNA_snn}}{Shared nearest neighbour graph}
+#'         }
+#'       }
+#'     }
+#'   }
 #' }
-#' @source 10x Genomics, <dataset name and URL>, CC BY 4.0. Processed with
-#'   the script in \code{data-raw/tevra_example.R}.
+#' @source Dataset from 10x Genomics
+#'   (\url{https://www.10xgenomics.com/datasets/integrated-gex-and-vdj-analysis-of-connect-generated-library-from-mouse-splenocytes-2-standard-6-0-1}),
+#'   licensed under CC BY 4.0
+#'   (\url{https://creativecommons.org/licenses/by/4.0/}). Modified from the
+#'   original: cell types were assigned with Seurat, clonal identity was
+#'   computed with scRepertoire, and the object was converted to a
+#'   \code{SingleCellExperiment} and restricted to the top 2,000 highly
+#'   variable genes.
 "tevra_example"
