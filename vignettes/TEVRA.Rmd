@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, include = FALSE}
+```{r setup, message = FALSE, warning = FALSE}
 library(TEVRA)
 library(SingleCellExperiment)
 
@@ -27,6 +27,20 @@ tevra_example
 ```
 
 ## Create communities
+Communities of transcriptionally similar cells can be computed upstream of the 
+TEVRA workflow using any preferred method e.g., miloR, metacell or supercell.
+Alternatively, TEVRA's `create_communities()` function  provides  a custom 
+method for community detection. This operates via Leiden partitioning of a 
+pre-computed shared-nearest-neighbour graph. 
+The key parameters are:
+
+- resolution: determines the granularity of clustering
+- min_cells: informs the minimum number of cells per community. Cells belonging 
+to communities with fewer cells are reassigned to the community occupied by the 
+majority of the cell's nearest neighbours
+
+To establish communities of the desired size, different resolutions can be 
+evaluated via `test_resolution()` and visualised via `plot_resolution_results()`
 ```{r test_resolution}
 res_results <- test_resolution(tevra_example,
                                graph.name = "RNA_snn",
@@ -40,6 +54,8 @@ plot_resolution_results(res_results,
                         show_error_bars = TRUE)
 ```
 
+Once the optimal resolution has been selected, communities can be generated via
+`create_communities()` and community sizes evaluated via `plot_nhood_sizes()`
 ```{r create_communities}
 communities <- create_communities(tevra_example,
                                   graph.name = "RNA_snn",
@@ -48,7 +64,6 @@ communities <- create_communities(tevra_example,
                                   feature.col = "nFeature_RNA",
                                   count.col = "nCount_RNA")
 communities
-head(communities$communities_summary)
 
 sce_obj <- communities$sce
 ```
@@ -57,8 +72,8 @@ sce_obj <- communities$sce
 plot_nhood_sizes(communities$communities_summary)
 ```
 
-## Neighbourhood level analysis
-### Compute neighbourhood UMAP
+A neighbourhood-level UMAP can be generated via aggregating (mean or median) 
+the consistuent cells' coordinates per neighbourhood
 ```{r nhood_umap}
 sce_obj <- nhood_umap(sce_obj,
                       nhood_col = "community_id",
@@ -68,7 +83,19 @@ sce_obj <- nhood_umap(sce_obj,
 head(metadata(sce_obj)$nhood_umap)
 ```
 
+## Neighbourhood level analysis
+Once cells are aggregated into transcriptionally-defined neighbourhoods, these 
+can be fed into TEVRA's neighbourhood-level analysis functions. 
+
 ### Neighbourhood annotation
+Each neighbourhood can be annotated according to the most common identity among 
+its constituent cells. Specify one or more `colData` columns in 
+`annotation_cols`. For each column, the most frequent value across the 
+neighbourhood’s cells becomes the neighbourhood’s annotation, provided it 
+accounts for a proportion of cells above the defined threshold. To investigate 
+the proportion of cells per neighbourhood with each identity without assigning 
+a neighbourhood annotation, run `nhood_annotation_props()`.
+
 ```{r nhood_annotation}
 sce_obj <- nhood_annotation(object = sce_obj,
                             annotation_cols = "Bcelltype",
@@ -80,6 +107,16 @@ head(metadata(sce_obj)$nhood_annotation)
 ```
 
 ### Neighbourhood diversity
+The clonal repertoire of each neighbourhood is summarised using 
+`nhood_diversity()`, selecting the specific diversity metrics desired. If clones
+have not been defined, the raw cdr3 sequence is used as a surrogate, although
+this is not recommended for B cells due to the potential for significant 
+sequence modification within clones via somatic hypermutation. Metrics are not 
+computed for neighbourhoods with less than `min_n_contigs` as diversity 
+estimates are unstable at low sample sizes. Rarefaction or coverage-based
+standardisation is recommended due to the sensitivity of diversity estimates
+to sampling depth
+
 ```{r nhood_diversity}
 sce_obj <- nhood_diversity(sce_obj,
                            nhood_col = "community_id",
@@ -96,6 +133,11 @@ head(metadata(sce_obj)$nhood_diversity)
 ```
 
 ### Neighbourhood cdr3 convergence
+The similarity of the CDR3 amino acid sequences of different clones is computed
+using `nhood_cdr3_convergence()`. Pairwise distances are computed via `pwalign`'s `stringDist()` function across all unique (or representative for BCRs) CDR3 amino acid sequences per neighbourhood exceeding min_n_contigs and optionally min_clones. These are either traditional Levenshtein distances or calculated using BLOSUM-weighted substitution scores. Raw alignment distances are then normalised to [0,1] by dividing by the length of the longer sequence in each pair. To control for variation in clone number across neighbourhoods, distance matrices may be downsampled over `n_boots` iterations.
+
+Pairwise distances matrices are summarised per neighbourhood as a global convergence score (mean or median pairwise distance across all representative CDR3 sequences), or a local convergence score (mean distance of each CDR3 sequence to its k nearest neighbours, averaged across representatives). Finally, all distance-based metrics are converted to convergence scores via $1 - distance$. To investigate the raw convergence matrices without neighbourhood-level summarisation, run `nhood_cdr3_convergence_matrices()`.
+
 ```{r nhood_cdr3_convergence}
 sce_obj <- nhood_cdr3_convergence(object = sce_obj,
                                   nhood_col ="community_id",
@@ -116,6 +158,9 @@ head(metadata(sce_obj)$nhood_cdr3_convergence)
 ```
 
 ### Merge neighbourhood-level analysis
+Easily aggregate all neighbourhood-level analyses into a single dataframe for 
+plotting and visualisation purposes.
+
 ```{r merge_nhood_results}
 sce_obj <- merge_nhood_results(object = sce_obj,
                                dataframe_names = c("nhood_umap", "nhood_annotation", 
@@ -127,7 +172,7 @@ sce_obj <- merge_nhood_results(object = sce_obj,
 ```
 
 ## Plot
-### UMAP
+### Neighbourhood UMAP
 ```{r plot_nhood_umap, fig.width = 7, fig.height = 6}
 cell_umap_coords <- as.data.frame(reducedDims(sce_obj)$UMAP)
 summary(row.names(cell_umap_coords) == row.names(colData(sce_obj)))
@@ -147,6 +192,9 @@ plot_nhood_umap(metadata(sce_obj)$merged_nhood_analysis,
 ```
 
 ### Capture efficiency
+Visualises the efficiency of contig capture per neighbourhood. Follows 
+`nhood_diversity()`
+
 ```{r plot_capture_efficiency, fig.width = 7, fig.height = 6}
 plot_capture_efficiency(nhood_diversity_df = metadata(sce_obj)$merged_nhood_analysis, 
                         group_by = "Bcelltype") 
