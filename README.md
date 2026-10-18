@@ -57,7 +57,7 @@ For `Milo` objects, the function will extract the `nhoods` matrix directly
 milo_obj <- nhood_cdr3_convergence(object = milo_obj,
                                   nhood_col = NULL,
                                   receptor_type = "BCR",
-                                  chain = c("both"),
+                                  chain = "both",
                                   aa_col = c(VDJ = "aa_IGH", VJ = "aa_IGL"),
                                   clone_id_col = "clone",
                                   min_n_contigs = 10,
