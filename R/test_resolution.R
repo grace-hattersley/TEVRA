@@ -9,15 +9,17 @@
 #'   pre-computed nearest-neighbour graph stored in
 #'   \code{metadata(sce)$graphs} under the name given by \code{graph.name}.
 #'   See the \strong{Graph preparation} section below for how to build and
-#'   store the graph. Supplying a Seurat object will raise an error.
+#'   store the graph.
 #' @param graph.name A character string giving the name of the graph to
 #'   retrieve from \code{metadata(sce)$graphs}. Defaults to \code{"RNA_snn"}.
 #' @param resolutions A numeric vector of resolution values to test. Higher
 #'   values produce more, smaller communities. Defaults to
 #'   \code{c(0.5, 1, 2.5, 5, 10, 20)}.
-#' @param min_cells A positive integer. Communities with fewer than this
-#'   many cells are considered too small; their cells are reassigned to the
-#'   nearest valid community. Defaults to \code{5}.
+#' @param min_cells A positive integer that defines the minimum community size.
+#'   Communities with fewer than this many cells are considered too small and
+#'   each of the consistuent cells are reassigned to the valid community
+#'   occupied by the majority of the cell's nearest neighbours/ Defaults to
+#'   \code{5}.
 #'
 #' @return A \code{data.frame} with one row per tested resolution and the
 #'   following columns:

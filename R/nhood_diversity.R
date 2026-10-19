@@ -21,7 +21,7 @@
 #'   availability required for a neighbourhood to be considered reliable.
 #'   Neighbourhoods below this threshold are flagged with
 #'   \code{diversity_reliable = FALSE} and their metric values are set to
-#'   \code{NA}.  Default: \code{10}.
+#'   \code{NA}.  Default: \code{20}.
 #' @param metrics Character vector of diversity metrics to compute.  Any
 #'   combination of \code{"shannon"}, \code{"norm.entropy"},
 #'   \code{"inv.simpson"}, \code{"gini.simpson"}, \code{"chao1"}, \code{"ace"},

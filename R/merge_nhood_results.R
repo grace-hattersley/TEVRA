@@ -31,10 +31,10 @@
 #'   \item \strong{Multiple dataframes found} — validates shared neighbourhoods
 #'     then merges all sequentially on \code{merge_key} using inner joins,
 #'     removing redundant columns at each step.
-#'   \item \strong{Only one dataframe found} — halts with an informative error,
-#'     as a merge requires at least two inputs.
+#'   \item \strong{Only one dataframe found} — halts with an error (a merge
+#'   requires at least two inputs)
+#'   \item \strong{No dataframes found} — halts with an error
 #'   \item \strong{Result already exists} — overwrites with a warning.
-#'   \item \strong{No dataframes found} — stops with an informative error.
 #' }
 #'
 #' ## Neighbourhood validation (two-stage):

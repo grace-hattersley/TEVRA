@@ -11,7 +11,7 @@
 #'   \code{show_error_bars = TRUE}, the column \code{sd_cells_per_community}
 #'   must also be present.
 #' @param show_error_bars A logical value. If \code{TRUE} (the default),
-#'   error bars showing \eqn{\pm}1 SD (\code{sd_cells_per_community}) are
+#'   error bars showing ±1 SD (\code{sd_cells_per_community}) are
 #'   added around each point.
 #'
 #' @return A \code{ggplot} object showing mean cells per community against

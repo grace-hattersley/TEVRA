@@ -21,21 +21,25 @@ library(SingleCellExperiment)
 set.seed(0)
 ```
 
+## Load data
+TEVRA accepts a `SingleCellExperiment` object. Communities of transcriptionally 
+similar cells can be computed upstream of the TEVRA workflow using any 
+preferred method e.g., *miloR*, *metacell* or *supercell*. If discrete 
+communities have been defined, these should be stored as a column in 
+`colData(sce_object)`. If overlapping neighbourhoods were computed e.g., via 
+*miloR*, these should be stored as a binary `nhoods` matrix.
 ```{r load-data}
 data(tevra_example)
 tevra_example
 ```
 
 ## Create communities
-Communities of transcriptionally similar cells can be computed upstream of the 
-TEVRA workflow using any preferred method e.g., miloR, metacell or supercell.
-Alternatively, TEVRA's `create_communities()` function  provides  a custom 
-method for community detection. This operates via Leiden partitioning of a 
-pre-computed shared-nearest-neighbour graph. 
-The key parameters are:
+TEVRA also provides `create_communities()`, a custom function for community 
+detection. This operates via Leiden partitioning of a pre-computed 
+shared-nearest-neighbour graph. The key parameters are:
 
-- resolution: determines the granularity of clustering
-- min_cells: informs the minimum number of cells per community. Cells belonging 
+- `resolution`: determines the granularity of clustering
+- `min_cells`: informs the minimum number of cells per community. Cells belonging 
 to communities with fewer cells are reassigned to the community occupied by the 
 majority of the cell's nearest neighbours
 
@@ -73,7 +77,7 @@ plot_nhood_sizes(communities$communities_summary)
 ```
 
 A neighbourhood-level UMAP can be generated via aggregating (mean or median) 
-the consistuent cells' coordinates per neighbourhood
+the consistuent cells' individual UMAP coordinates per neighbourhood
 ```{r nhood_umap}
 sce_obj <- nhood_umap(sce_obj,
                       nhood_col = "community_id",
@@ -92,9 +96,7 @@ Each neighbourhood can be annotated according to the most common identity among
 its constituent cells. Specify one or more `colData` columns in 
 `annotation_cols`. For each column, the most frequent value across the 
 neighbourhood’s cells becomes the neighbourhood’s annotation, provided it 
-accounts for a proportion of cells above the defined threshold. To investigate 
-the proportion of cells per neighbourhood with each identity without assigning 
-a neighbourhood annotation, run `nhood_annotation_props()`.
+accounts for a proportion of cells above the defined `threshold`. 
 
 ```{r nhood_annotation}
 sce_obj <- nhood_annotation(object = sce_obj,
@@ -106,16 +108,29 @@ sce_obj <- nhood_annotation(object = sce_obj,
 head(metadata(sce_obj)$nhood_annotation)
 ```
 
+To investigatethe proportion of cells per neighbourhood with each identity 
+without assigning a neighbourhood annotation, run `nhood_annotation_props()`
+
 ### Neighbourhood diversity
 The clonal repertoire of each neighbourhood is summarised using 
-`nhood_diversity()`, selecting the specific diversity metrics desired. If clones
-have not been defined, the raw cdr3 sequence is used as a surrogate, although
-this is not recommended for B cells due to the potential for significant 
-sequence modification within clones via somatic hypermutation. Metrics are not 
-computed for neighbourhoods with less than `min_n_contigs` as diversity 
-estimates are unstable at low sample sizes. Rarefaction or coverage-based
-standardisation is recommended due to the sensitivity of diversity estimates
-to sampling depth
+`nhood_diversity()`, selecting the specific diversity metrics desired from:
+
+- `shannon`:
+- `norm.entropy`
+- `inv.simpson`
+- `gini.simpson`
+- `chao1`
+- `ace`
+- `gini`
+- `standardised_n_clones`
+
+If clones have not been defined, the raw cdr3 sequence is used as a surrogate, 
+although this is not recommended for B cells due to the potential for 
+significant sequence modification within clones via somatic hypermutation. 
+Metrics are not computed for neighbourhoods with less than `min_n_contigs` as 
+diversity estimates are unstable at low sample sizes. Rarefaction or coverage-
+based standardisation is recommended due to the sensitivity of diversity 
+estimates to sampling depth
 
 ```{r nhood_diversity}
 sce_obj <- nhood_diversity(sce_obj,
@@ -134,17 +149,32 @@ head(metadata(sce_obj)$nhood_diversity)
 
 ### Neighbourhood cdr3 convergence
 The similarity of the CDR3 amino acid sequences of different clones is computed
-using `nhood_cdr3_convergence()`. Pairwise distances are computed via `pwalign`'s `stringDist()` function across all unique (or representative for BCRs) CDR3 amino acid sequences per neighbourhood exceeding min_n_contigs and optionally min_clones. These are either traditional Levenshtein distances or calculated using BLOSUM-weighted substitution scores. Raw alignment distances are then normalised to [0,1] by dividing by the length of the longer sequence in each pair. To control for variation in clone number across neighbourhoods, distance matrices may be downsampled over `n_boots` iterations.
+using `nhood_cdr3_convergence()`. This is computed for both heavy and light 
+chain CDR3 sequences when `chain` = "both".
 
-Pairwise distances matrices are summarised per neighbourhood as a global convergence score (mean or median pairwise distance across all representative CDR3 sequences), or a local convergence score (mean distance of each CDR3 sequence to its k nearest neighbours, averaged across representatives). Finally, all distance-based metrics are converted to convergence scores via $1 - distance$. To investigate the raw convergence matrices without neighbourhood-level summarisation, run `nhood_cdr3_convergence_matrices()`.
+Pairwise distances are computed via *pwalign*'s `stringDist()` function across 
+all unique (or representative when `receptor_type` = "BCR") CDR3 amino acid 
+sequences per neighbourhood exceeding min_n_contigs and optionally min_clones. 
+These are either traditional Levenshtein distances or calculated using 
+BLOSUM-weighted substitution scores. Raw alignment distances are then normalised 
+to [0,1] by dividing by the length of the longer sequence in each pair. To 
+control for variation in clone number across neighbourhoods, distance matrices 
+may be downsampled over `n_boots` iterations.
+
+Pairwise distances matrices are summarised per neighbourhood as a global 
+convergence score (mean or median pairwise distance across all representative 
+CDR3 sequences), or a local convergence score (mean distance of each CDR3 
+sequence to its k nearest neighbours, averaged across representatives). Finally, 
+all distance-based metrics are converted to convergence scores via 
+$1 - distance$. 
 
 ```{r nhood_cdr3_convergence}
 sce_obj <- nhood_cdr3_convergence(object = sce_obj,
                                   nhood_col ="community_id",
                                   receptor_type = "BCR",
-                                  chain = c("both"),
+                                  chain = "both",
                                   aa_col = c(VDJ = "CTaa_BCR_IGH", VJ = "CTaa_BCR_IGL"),
-                                  clone_id_col = "CTstrict",
+                                  clone_id_col = "CTstrict_BCR",
                                   min_n_contigs = 10,
                                   min_clones = NULL,
                                   distance_method = "levenshtein", 
@@ -157,9 +187,12 @@ sce_obj <- nhood_cdr3_convergence(object = sce_obj,
 head(metadata(sce_obj)$nhood_cdr3_convergence)
 ```
 
+To investigate the raw convergence matrices without 
+neighbourhood-level summarisation, run `nhood_cdr3_convergence_matrices()`.
+
 ### Merge neighbourhood-level analysis
-Easily aggregate all neighbourhood-level analyses into a single dataframe for 
-plotting and visualisation purposes.
+`merge_nhood_results()` easily aggregates all neighbourhood-level analyses into 
+a single dataframe for plotting and visualisation purposes.
 
 ```{r merge_nhood_results}
 sce_obj <- merge_nhood_results(object = sce_obj,
@@ -172,6 +205,9 @@ sce_obj <- merge_nhood_results(object = sce_obj,
 ```
 
 ## Plot
+TEVRA offers a number of visualisation functions. Each neighbourhood is 
+visualised as a point.
+
 ### Neighbourhood UMAP
 ```{r plot_nhood_umap, fig.width = 7, fig.height = 6}
 cell_umap_coords <- as.data.frame(reducedDims(sce_obj)$UMAP)
