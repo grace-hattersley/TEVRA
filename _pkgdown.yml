@@ -1,8 +1,7 @@
 url: https://grace-hattersley.github.io/TEVRA/
 template:
   bootstrap: 5
-  math-rendering: mathjax  
-
+  math-rendering: mathjax
 reference:
 - title: Neighbourhood construction
   desc: Define transcriptional neighbourhoods and choose a clustering resolution.
@@ -33,5 +32,5 @@ reference:
   - plot_nhood_scatter
   - plot_capture_efficiency
 - title: Example data
-  contents:
-  - tevra_example
+  contents: tevra_example
+

@@ -49,5 +49,5 @@ Config/roxygen2/version: 8.1.0
 VignetteBuilder: knitr
 LazyData: true
 LazyDataCompression: xz
-URL: https://grace-hattersley.github.io/TEVRA, https://github.com/grace-hattersley/TEVRA
+URL: https://grace-hattersley.github.io/TEVRA, https://github.com/grace-hattersley/TEVRA, https://grace-hattersley.github.io/TEVRA/
 BugReports: https://github.com/grace-hattersley/TEVRA/issues
