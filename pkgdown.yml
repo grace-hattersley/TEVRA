@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  TEVRA: TEVRA.html
+last_built: 2026-10-20T13:08Z
+urls:
+  reference: https://grace-hattersley.github.io/TEVRA/reference
+  article: https://grace-hattersley.github.io/TEVRA/articles
