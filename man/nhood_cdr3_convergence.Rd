@@ -26,16 +26,14 @@ nhood_cdr3_convergence(
 }
 \arguments{
 \item{object}{A \code{\link[miloR]{Milo}} or
-\code{\link[SingleCellExperiment]{SingleCellExperiment}} object. For
-\code{Milo} objects the neighbourhood membership matrix is read directly
-from \code{nhoods(object)}. For \code{SingleCellExperiment} objects a
-\code{colData} column containing neighbourhood assignments must be
-supplied via \code{nhood_col}.}
+\code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
+objects must first be converted via
+\code{\link[Seurat]{as.SingleCellExperiment}}.}
 
-\item{nhood_col}{Character string; name of the \code{colData} column
-containing neighbourhood assignments. Required only when \code{object} is
-a \code{SingleCellExperiment}; ignored for \code{Milo} objects. Cells
-with \code{NA} in this column are excluded with a warning.}
+\item{nhood_col}{Character string. For plain \code{SingleCellExperiment}
+objects (i.e. not \code{Milo}), the name of the \code{colData} column
+containing neighbourhood assignments. Not required for \code{Milo}
+objects.}
 
 \item{receptor_type}{Character string; one of \code{"BCR"} (default) or
 \code{"TCR"}. Controls clone-level representative selection: for BCR,
@@ -77,11 +75,10 @@ a warning is issued in this case.}
 \item{min_clones}{Integer or \code{NULL} (default). When supplied,
 neighbourhoods with fewer representative sequences than this threshold are
 excluded: all metrics are set to \code{NA} and \code{converge_score_reliable =
-  FALSE}. When \code{NULL}, all neighbourhoods that pass \code{min_n_contigs}
+FALSE}. When \code{NULL}, all neighbourhoods that pass \code{min_n_contigs}
 are processed regardless of representative count. Must be at least equal
 to \code{min_n_contigs} to have any independent gating effect; a warning is
 issued otherwise.
-
 \code{converge_score} may be unstable when \code{n_clones}
 is small relative to \eqn{k}: when the adaptive \eqn{k} approaches \code{n_clones}, each sequence's
 nearest neighbours span nearly the entire neighbourhood and the kNN score
@@ -157,7 +154,6 @@ reported values are the mean across iterations and the corresponding
 each requested metric. Default is \code{100}. Ignored when
 \code{downsample = FALSE} or when a neighbourhood has fewer
 representatives than the downsampling depth.
-
 When \code{downsample = TRUE} and \code{"converge_score"} is in
 \code{summary_metric}, the effective sample size for kNN computation
 within each bootstrap iteration is the downsampling depth rather than the
@@ -364,7 +360,8 @@ sce <- nhood_cdr3_convergence(
 
 }
 \seealso{
-\code{\link[pwalign]{stringDist}} for the underlying alignment engine.
+\href{https://bioconductor.org/packages/release/bioc/manuals/pwalign/man/pwalign.pdf}{\code{pwalign::stringDist()}}
+for the underlying alignment engine.
 \code{\link[BiocParallel]{BiocParallelParam}} for parallelisation options.
 \code{\link{nhood_diversity}}, \code{\link{nhood_shm}},
 \code{\link{nhood_annotation}}, \code{\link{nhood_annotation_props}}

@@ -14,52 +14,88 @@
 #' per neighbourhood instead of summarising the convergence scores.
 #'
 #' @param object A \code{\link[miloR]{Milo}} or
-#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. See
-#'   \code{\link{nhood_cdr3_convergence}} for details.
-#'
-#' @param nhood_col Character string; required for SingleCellExperiment
-#'   objects. See \code{\link{nhood_cdr3_convergence}}.
-#'
+#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
+#'   objects must first be converted via
+#'   \code{\link[Seurat]{as.SingleCellExperiment}}.
+#' @param nhood_col Character string. For plain \code{SingleCellExperiment}
+#'   objects (i.e. not \code{Milo}), the name of the \code{colData} column
+#'   containing neighbourhood assignments. Not required for \code{Milo}
+#'   objects.
 #' @param nhood_ids Character or integer vector of neighbourhood identifiers
 #'   to process. Values are matched against \code{colnames(nhoods(object))}
 #'   for Milo objects, or against the values in \code{nhood_col} for
 #'   SingleCellExperiment objects. An error is raised for any identifier not
 #'   found.
-#'
-#' @param receptor_type Character string; \code{"BCR"} (default) or
-#'   \code{"TCR"}. See \code{\link{nhood_cdr3_convergence}}.
-#'
-#' @param chain Character string; \code{"VDJ"} (default), \code{"VJ"}, or
-#'   \code{"both"}. See \code{\link{nhood_cdr3_convergence}}.
-#'
-#' @param aa_col Character string or named character vector. See
-#'   \code{\link{nhood_cdr3_convergence}}.
-#'
-#' @param clone_id_col Character string or \code{NULL} (default). See
-#'   \code{\link{nhood_cdr3_convergence}}.
-#'
+#' @param receptor_type Character string; one of \code{"BCR"} (default) or
+#'   \code{"TCR"}. Controls clone-level representative selection: for BCR,
+#'   a centroid sequence is chosen per clone (the sequence with the lowest mean
+#'   pairwise distance to all other members of the same clone). For TCR,
+#'   unique sequences are used directly as representatives. Ignored if
+#'   \code{clone_id_col} is \code{NULL}.
+#' @param chain Character string; one of \code{"VDJ"} (default), \code{"VJ"},
+#'   or \code{"both"}. Determines which receptor chain(s) are analysed. When
+#'   \code{chain = "both"}, \code{aa_col} must be a named character vector with
+#'   elements \code{"VDJ"} and \code{"VJ"} (see \code{aa_col}).
+#' @param aa_col Character string or named character vector specifying the
+#'   \code{colData} column(s) containing CDR3 amino acid sequences. When
+#'   \code{chain} is \code{"VDJ"} or \code{"VJ"}, supply a single column name.
+#'   When \code{chain = "both"}, supply a named vector with elements \code{"VDJ"}
+#'   and \code{"VJ"}, e.g.:
+#'   \code{aa_col = c(VDJ = "cdr3_aa_heavy", VJ = "cdr3_aa_light")}.
+#'   Cells with \code{NA}, empty string, \code{"No_contig"}, or \code{"None"}
+#'   in the relevant column are excluded from analysis.
+#' @param clone_id_col Character string; name of the \code{colData} column
+#'   containing clone identifiers (e.g. output from a clonotyping tool).
+#'   When supplied and \code{receptor_type = "BCR"}, one centroid sequence is
+#'   selected per clone per neighbourhood. When \code{NULL} (default), all
+#'   unique CDR3 sequences are treated as individual representatives regardless
+#'   of \code{receptor_type}. If the column is not found in \code{colData}, a
+#'   warning is issued and the function falls back to unique-sequence mode.
 #' @param min_n_contigs Integer; minimum number of cells with valid contig
-#'   annotation required for a neighbourhood to be processed. Neighbourhoods
-#'   below this threshold are returned as \code{NULL} with a warning.
-#'   Default is \code{10}.
-#'
+#'   annotation required for a neighbourhood to be included in the analysis.
+#'   Neighbourhoods below this threshold are assigned \code{NA} for all
+#'   distance metrics and \code{converge_score_reliable = FALSE}. Default is
+#'   \code{20}. When \code{min_clones} is also supplied, setting
+#'   \code{min_n_contigs} below that value gives it no independent gating effect;
+#'   a warning is issued in this case.
 #' @param min_clones Integer or \code{NULL} (default). When supplied,
-#'   neighbourhoods with fewer representative sequences (clone centroids for
-#'   BCR, unique sequences for TCR) than this threshold are returned as
-#'   \code{NULL} with a warning, in addition to the existing hard requirement
-#'   of at least 2 representatives needed to form any pairwise matrix. When
-#'   \code{NULL}, only that 2-representative floor applies. Must be at least
-#'   equal to \code{min_n_contigs} to have any independent gating effect; a
-#'   warning is issued otherwise. See \code{\link{nhood_cdr3_convergence}}
-#'   for the same parameter in the summarised function.
-#'
-#' @param distance_method Character string; \code{"levenshtein"} (default),
-#'   \code{"blosum62"}, or \code{"custom"}. See
-#'   \code{\link{nhood_cdr3_convergence}}.
-#'
-#' @param substitution_matrix Numeric matrix; required when
-#'   \code{distance_method = "custom"}. See
-#'   \code{\link{nhood_cdr3_convergence}}.
+#'   neighbourhoods with fewer representative sequences than this threshold are
+#'   excluded: all metrics are set to \code{NA} and \code{converge_score_reliable =
+#'   FALSE}. When \code{NULL}, all neighbourhoods that pass \code{min_n_contigs}
+#'   are processed regardless of representative count. Must be at least equal
+#'   to \code{min_n_contigs} to have any independent gating effect; a warning is
+#'   issued otherwise.
+#'   \code{converge_score} may be unstable when \code{n_clones}
+#'   is small relative to \eqn{k}: when the adaptive \eqn{k} approaches \code{n_clones}, each sequence's
+#'   nearest neighbours span nearly the entire neighbourhood and the kNN score
+#'   converges toward the global mean. If this is a concern, set
+#'   \code{min_clones} to a value comfortably above the adaptive
+#'   \eqn{k} floor (e.g. \code{20}) to exclude such neighbourhoods, or inspect
+#'   \code{<chain>_n_clones} in the output to identify small
+#'   neighbourhoods post-hoc. \code{converge_score} is reported as \code{NA} only
+#'   when \code{n_clones <= resolved_k}, since kNN cannot be computed
+#'   when there are insufficient sequences to form a neighbourhood.
+#' @param distance_method Character string; one of \code{"levenshtein"}
+#'   (default), \code{"blosum62"}, or \code{"custom"}.
+#'   \describe{
+#'     \item{\code{"levenshtein"}}{Flat substitution cost: 0 for identical
+#'       amino acids, 1 for any mismatch, normalised by the length of the
+#'       longer sequence. Equivalent to normalised edit distance.}
+#'     \item{\code{"blosum62"}}{Substitution cost derived from BLOSUM62 via
+#'       \eqn{c(i,j) = (s(i,i) + s(j,j)) / 2 - s(i,j)}, normalised to
+#'       \eqn{[0, 1]} by the maximum off-diagonal cost. Biochemically similar
+#'       amino acids incur lower cost than dissimilar ones.}
+#'     \item{\code{"custom"}}{User-supplied substitution matrix passed via
+#'       \code{substitution_matrix}. Must follow the same sign convention as
+#'       \code{pwalign::stringDist} (higher score = more similar). See
+#'       \code{substitution_matrix}.}
+#'   }
+#' @param substitution_matrix A square numeric matrix with named rows and
+#'   columns (single-letter amino acid codes) to use when
+#'   \code{distance_method = "custom"}. The matrix must follow the
+#'   \code{pwalign::stringDist} sign convention: higher values indicate more
+#'   similar amino acids (i.e. a score matrix, not a cost matrix). Ignored
+#'   unless \code{distance_method = "custom"}.
 #'
 #' @return A named list with one element per requested neighbourhood ID. Each
 #'   element is itself a named list with one entry per chain
@@ -98,8 +134,8 @@
 nhood_cdr3_convergence_matrices <- function(object,
                                             nhood_col           = NULL,
                                             nhood_ids,
-                                            receptor_type   = c("BCR", "TCR"),
-                                            chain           = c("VDJ", "VJ", "both"),
+                                            receptor_type       = c("BCR", "TCR"),
+                                            chain               = c("VDJ", "VJ", "both"),
                                             aa_col,
                                             clone_id_col        = NULL,
                                             min_n_contigs       = 20L,

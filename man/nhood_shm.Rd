@@ -20,11 +20,10 @@ nhood_shm(
 objects must first be converted via
 \code{\link[Seurat]{as.SingleCellExperiment}}.}
 
-\item{nhood_col}{Character string naming a \code{colData} column that holds
-pre-computed neighbourhood assignments (as a numeric or character vector).
-Required when \code{object} is a plain \code{SingleCellExperiment};
-ignored for \code{Milo} objects, which carry neighbourhood information in
-the \code{nhoods} slot.}
+\item{nhood_col}{Character string. For plain \code{SingleCellExperiment}
+objects (i.e. not \code{Milo}), the name of the \code{colData} column
+containing neighbourhood assignments. Not required for \code{Milo}
+objects.}
 
 \item{shm_cols}{Character vector of column names in \code{colData(object)}
 containing per-cell SHM metrics to aggregate. Defaults to

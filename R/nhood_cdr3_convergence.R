@@ -5,29 +5,23 @@
 #' receptor (TCR) clones.
 #'
 #' @param object A \code{\link[miloR]{Milo}} or
-#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. For
-#'   \code{Milo} objects the neighbourhood membership matrix is read directly
-#'   from \code{nhoods(object)}. For \code{SingleCellExperiment} objects a
-#'   \code{colData} column containing neighbourhood assignments must be
-#'   supplied via \code{nhood_col}.
-#'
-#' @param nhood_col Character string; name of the \code{colData} column
-#'   containing neighbourhood assignments. Required only when \code{object} is
-#'   a \code{SingleCellExperiment}; ignored for \code{Milo} objects. Cells
-#'   with \code{NA} in this column are excluded with a warning.
-#'
+#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
+#'   objects must first be converted via
+#'   \code{\link[Seurat]{as.SingleCellExperiment}}.
+#' @param nhood_col Character string. For plain \code{SingleCellExperiment}
+#'   objects (i.e. not \code{Milo}), the name of the \code{colData} column
+#'   containing neighbourhood assignments. Not required for \code{Milo}
+#'   objects.
 #' @param receptor_type Character string; one of \code{"BCR"} (default) or
 #'   \code{"TCR"}. Controls clone-level representative selection: for BCR,
 #'   a centroid sequence is chosen per clone (the sequence with the lowest mean
 #'   pairwise distance to all other members of the same clone). For TCR,
 #'   unique sequences are used directly as representatives. Ignored if
 #'   \code{clone_id_col} is \code{NULL}.
-#'
 #' @param chain Character string; one of \code{"VDJ"} (default), \code{"VJ"},
 #'   or \code{"both"}. Determines which receptor chain(s) are analysed. When
 #'   \code{chain = "both"}, \code{aa_col} must be a named character vector with
 #'   elements \code{"VDJ"} and \code{"VJ"} (see \code{aa_col}).
-#'
 #' @param aa_col Character string or named character vector specifying the
 #'   \code{colData} column(s) containing CDR3 amino acid sequences. When
 #'   \code{chain} is \code{"VDJ"} or \code{"VJ"}, supply a single column name.
@@ -36,7 +30,6 @@
 #'   \code{aa_col = c(VDJ = "cdr3_aa_heavy", VJ = "cdr3_aa_light")}.
 #'   Cells with \code{NA}, empty string, \code{"No_contig"}, or \code{"None"}
 #'   in the relevant column are excluded from analysis.
-#'
 #' @param clone_id_col Character string; name of the \code{colData} column
 #'   containing clone identifiers (e.g. output from a clonotyping tool).
 #'   When supplied and \code{receptor_type = "BCR"}, one centroid sequence is
@@ -44,7 +37,6 @@
 #'   unique CDR3 sequences are treated as individual representatives regardless
 #'   of \code{receptor_type}. If the column is not found in \code{colData}, a
 #'   warning is issued and the function falls back to unique-sequence mode.
-#'
 #' @param min_n_contigs Integer; minimum number of cells with valid contig
 #'   annotation required for a neighbourhood to be included in the analysis.
 #'   Neighbourhoods below this threshold are assigned \code{NA} for all
@@ -52,7 +44,6 @@
 #'   \code{20}. When \code{min_clones} is also supplied, setting
 #'   \code{min_n_contigs} below that value gives it no independent gating effect;
 #'   a warning is issued in this case.
-#'
 #' @param min_clones Integer or \code{NULL} (default). When supplied,
 #'   neighbourhoods with fewer representative sequences than this threshold are
 #'   excluded: all metrics are set to \code{NA} and \code{converge_score_reliable =
@@ -60,7 +51,6 @@
 #'   are processed regardless of representative count. Must be at least equal
 #'   to \code{min_n_contigs} to have any independent gating effect; a warning is
 #'   issued otherwise.
-#'
 #'   \code{converge_score} may be unstable when \code{n_clones}
 #'   is small relative to \eqn{k}: when the adaptive \eqn{k} approaches \code{n_clones}, each sequence's
 #'   nearest neighbours span nearly the entire neighbourhood and the kNN score
@@ -71,7 +61,6 @@
 #'   neighbourhoods post-hoc. \code{converge_score} is reported as \code{NA} only
 #'   when \code{n_clones <= resolved_k}, since kNN cannot be computed
 #'   when there are insufficient sequences to form a neighbourhood.
-#'
 #' @param distance_method Character string; one of \code{"levenshtein"}
 #'   (default), \code{"blosum62"}, or \code{"custom"}.
 #'   \describe{
@@ -87,14 +76,12 @@
 #'       \code{pwalign::stringDist} (higher score = more similar). See
 #'       \code{substitution_matrix}.}
 #'   }
-#'
 #' @param substitution_matrix A square numeric matrix with named rows and
 #'   columns (single-letter amino acid codes) to use when
 #'   \code{distance_method = "custom"}. The matrix must follow the
 #'   \code{pwalign::stringDist} sign convention: higher values indicate more
 #'   similar amino acids (i.e. a score matrix, not a cost matrix). Ignored
 #'   unless \code{distance_method = "custom"}.
-#'
 #' @param summary_metric Character vector; one or more of \code{"converge_score"}
 #'   (default), \code{"converge_score_global"}, and \code{"converge_score_global_median"}.
 #'   Controls which summary convergence metrics are calculated and returned:
@@ -110,7 +97,6 @@
 #'   }
 #'   Any combination of the three values may be supplied. The default is
 #'   \code{"converge_score"}.
-#'
 #' @param knn_k Integer or \code{NULL} (default). Number of nearest neighbours
 #'   to use when computing \code{converge_score}. When \code{NULL}, \eqn{k} is
 #'   set adaptively to \eqn{\lfloor 0.25 \times n_{\text{reps}} \rfloor} per
@@ -118,7 +104,6 @@
 #'   captures more than just the nearest pairwise comparisons. When a fixed integer
 #'   is supplied it is used as-is with no clamping applied. Within each bootstrap subsample \eqn{k} is additionally
 #'   capped at \eqn{n - 1} to guard against subsamples smaller than \eqn{k}.
-#'
 #' @param downsample Logical; whether to downsample large neighbourhoods to a
 #'   common representative depth before computing distances. The downsampling
 #'   depth is set to the median number of unique representatives across all
@@ -127,7 +112,6 @@
 #'   iterations). Default is \code{TRUE}. When \code{FALSE}, the full
 #'   representative matrix is used directly and \code{_sd} columns are not
 #'   reported.
-#'
 #' @param n_boots Integer; number of bootstrap iterations used during
 #'   downsampling. Each iteration subsamples \code{downsample_depth}
 #'   representatives without replacement and computes distance summaries;
@@ -136,7 +120,6 @@
 #'   each requested metric. Default is \code{100}. Ignored when
 #'   \code{downsample = FALSE} or when a neighbourhood has fewer
 #'   representatives than the downsampling depth.
-#'
 #'   When \code{downsample = TRUE} and \code{"converge_score"} is in
 #'   \code{summary_metric}, the effective sample size for kNN computation
 #'   within each bootstrap iteration is the downsampling depth rather than the
@@ -145,8 +128,6 @@
 #'   and a warning is emitted. In this scenario, set \code{downsample = FALSE}
 #'   or use \code{summary_metric = "converge_score_global"} to obtain values for
 #'   all neighbourhoods.
-#'
-#'
 #' @param seed Integer or \code{NULL} (default). Random seed for
 #'   reproducibility of the bootstrap downsampling procedure. When supplied, a
 #'   neighbourhood-specific seed is derived as \code{seed + i} (where \code{i}
@@ -154,12 +135,10 @@
 #'   is independently reproducible while the full run remains deterministic.
 #'   Set this parameter whenever results will be reported or compared across
 #'   runs. Has no effect when \code{downsample = FALSE}.
-#'
 #' @param result_name Character string; the key under which results are stored
 #'   in \code{metadata(object)}. If an entry with this name already exists a
 #'   warning is emitted and the entry is overwritten. Default is
 #'   \code{"nhood_cdr3_convergence"}.
-#'
 #' @param BPPARAM A \code{\link[BiocParallel]{BiocParallelParam}} instance
 #'   controlling parallelisation. The default,
 #'   \code{\link[BiocParallel]{SerialParam}()}, runs sequentially with
@@ -285,7 +264,8 @@
 #' progress is suppressed; a completion summary is printed after collation.
 #'
 #' @seealso
-#' \code{\link[pwalign]{stringDist}} for the underlying alignment engine.
+#' \href{https://bioconductor.org/packages/release/bioc/manuals/pwalign/man/pwalign.pdf}{\code{pwalign::stringDist()}}
+#' for the underlying alignment engine.
 #' \code{\link[BiocParallel]{BiocParallelParam}} for parallelisation options.
 #' \code{\link{nhood_diversity}}, \code{\link{nhood_shm}},
 #' \code{\link{nhood_annotation}}, \code{\link{nhood_annotation_props}}

@@ -10,11 +10,10 @@
 #'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
 #'   objects must first be converted via
 #'   \code{\link[Seurat]{as.SingleCellExperiment}}.
-#' @param nhood_col Character string naming a \code{colData} column that holds
-#'   pre-computed neighbourhood assignments (as a numeric or character vector).
-#'   Required when \code{object} is a plain \code{SingleCellExperiment};
-#'   ignored for \code{Milo} objects, which carry neighbourhood information in
-#'   the \code{nhoods} slot.
+#' @param nhood_col Character string. For plain \code{SingleCellExperiment}
+#'   objects (i.e. not \code{Milo}), the name of the \code{colData} column
+#'   containing neighbourhood assignments. Not required for \code{Milo}
+#'   objects.
 #' @param shm_cols Character vector of column names in \code{colData(object)}
 #'   containing per-cell SHM metrics to aggregate. Defaults to
 #'   \code{c("mu_count_VDJ", "mu_count_VJ", "mu_freq_VDJ", "mu_freq_VJ",

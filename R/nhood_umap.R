@@ -6,8 +6,8 @@
 #'   object with a UMAP stored in \code{reducedDims}. Seurat objects must be
 #'   converted via \code{\link[Seurat]{as.SingleCellExperiment}}
 #'   before use.
-#' @param nhood_col Character string. Name of the \code{colData} column that
-#'   assigns each cell to a neighbourhood. Default: \code{"community_id"}.
+#' @param nhood_col Character string. Name of the \code{colData} column
+#'   containing neighbourhood assignments. Default: \code{"community_id"}.
 #' @param aggregate_fun Character string. Aggregation function used to compute
 #'   neighbourhood centroids. Must be one of \code{"mean"} (arithmetic mean;
 #'   default) or \code{"median"}. The choice affects both the computed
@@ -66,9 +66,9 @@
 #' @export
 #'
 nhood_umap <- function(object,
-                       nhood_col     = "neighbourhood_id",
+                       nhood_col     = "community_id",
                        aggregate_fun = "mean",
-                       result_name   = "community_id") {
+                       result_name   = "nhood_umap") {
 
   # ── 1. Input validation ────────────────────────────────────────────────────
   if (!inherits(object, "SingleCellExperiment")) {

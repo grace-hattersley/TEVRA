@@ -9,15 +9,15 @@
 #'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
 #'   objects must first be converted via
 #'   \code{\link[Seurat]{as.SingleCellExperiment}}.
+#' @param nhood_col Character string. For plain \code{SingleCellExperiment}
+#'   objects (i.e. not \code{Milo}), the name of the \code{colData} column
+#'   containing neighbourhood assignments. Not required for \code{Milo}
+#'   objects.
 #' @param annotation_cols Character vector of \code{colData} column names containing
 #'   per-cell annotation categories to summarise per neighbourhood (e.g.
 #'   cell type, lineage, cluster label). All specified columns must be present
 #'   in \code{colData}; missing columns raise an error. Default:
 #'   \code{"celltype"}.
-#' @param nhood_col Character string. For plain \code{SingleCellExperiment}
-#'   objects (i.e. not \code{Milo}), the name of the \code{colData} column
-#'   containing neighbourhood assignments. Not required for \code{Milo}
-#'   objects.
 #' @param threshold Numeric value between 0-1. The minimum proportion a single
 #'   annotation category must reach for a neighbourhood to be assigned that
 #'   label. Neighbourhoods where the dominant category falls below this
@@ -89,16 +89,16 @@
 #' # --- Plain SingleCellExperiment object ------------------------------------
 #' sce <- nhood_annotation(
 #'   object          = sce_object,
-#'   annotation_cols = "celltype",
-#'   nhood_col       = "neighbourhood_id"
+#'   nhood_col       = "community_id",
+#'   annotation_cols = "celltype"
 #' )
 #' }
 #'
 #' @export
 #'
 nhood_annotation <- function(object,
-                             annotation_cols = "celltype",
                              nhood_col = NULL,
+                             annotation_cols = "celltype",
                              threshold = 0.7,
                              result_name = "nhood_annotation") {
 

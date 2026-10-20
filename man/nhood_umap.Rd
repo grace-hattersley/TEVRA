@@ -6,9 +6,9 @@
 \usage{
 nhood_umap(
   object,
-  nhood_col = "neighbourhood_id",
+  nhood_col = "community_id",
   aggregate_fun = "mean",
-  result_name = "community_id"
+  result_name = "nhood_umap"
 )
 }
 \arguments{
@@ -17,8 +17,8 @@ object with a UMAP stored in \code{reducedDims}. Seurat objects must be
 converted via \code{\link[Seurat]{as.SingleCellExperiment}}
 before use.}
 
-\item{nhood_col}{Character string. Name of the \code{colData} column that
-assigns each cell to a neighbourhood. Default: \code{"community_id"}.}
+\item{nhood_col}{Character string. Name of the \code{colData} column
+containing neighbourhood assignments. Default: \code{"community_id"}.}
 
 \item{aggregate_fun}{Character string. Aggregation function used to compute
 neighbourhood centroids. Must be one of \code{"mean"} (arithmetic mean;

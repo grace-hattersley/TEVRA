@@ -6,7 +6,7 @@
 \usage{
 plot_nhood_umap(
   nhood_umap,
-  nhood_col = "nhood",
+  nhood_col = "community_id",
   x_col = "mean_UMAP_1",
   y_col = "mean_UMAP_2",
   fill_by = NULL,
@@ -39,7 +39,7 @@ Typically SCE@metadata$coords merged with
 SCE@metadata$merged_nhood_analysis.}
 
 \item{nhood_col}{Name of the neighbourhood ID column in nhood_umap
-(default "nhood").}
+(default "community_id").}
 
 \item{x_col}{Name of the UMAP x-coordinate column in
 nhood_umap (default "mean_UMAP_1").}

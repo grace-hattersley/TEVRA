@@ -18,14 +18,15 @@ nhood_diversity(
 )
 }
 \arguments{
-\item{object}{A \code{Milo} or \code{SingleCellExperiment} object.
-Seurat objects must be converted via \code{as.SingleCellExperiment()}
-before use.}
+\item{object}{A \code{\link[miloR]{Milo}} or
+\code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
+objects must first be converted via
+\code{\link[Seurat]{as.SingleCellExperiment}}.}
 
 \item{nhood_col}{Character string. For plain \code{SingleCellExperiment}
 objects (i.e. not \code{Milo}), the name of the \code{colData} column
-that assigns each cell to a neighbourhood.  Not required for
-\code{Milo} objects.}
+containing neighbourhood assignments. Not required for \code{Milo}
+objects.}
 
 \item{clone_id_col}{Character string. Name of the \code{colData} column
 containing clone identifiers.  If \code{NULL} or not found,

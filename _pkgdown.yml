@@ -1,6 +1,7 @@
 url: https://grace-hattersley.github.io/TEVRA/
 template:
   bootstrap: 5
+  math-rendering: mathjax  
 
 reference:
 - title: Neighbourhood construction
@@ -34,4 +35,3 @@ reference:
 - title: Example data
   contents:
   - tevra_example
-

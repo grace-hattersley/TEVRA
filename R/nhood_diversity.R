@@ -4,13 +4,14 @@
 #' \code{SingleCellExperiment} object, using clonal identifiers (clone IDs or
 #' CDR3 sequences) extracted from \code{colData}.
 #'
-#' @param object A \code{Milo} or \code{SingleCellExperiment} object.
-#'   Seurat objects must be converted via \code{as.SingleCellExperiment()}
-#'   before use.
+#' @param object A \code{\link[miloR]{Milo}} or
+#'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object. Seurat
+#'   objects must first be converted via
+#'   \code{\link[Seurat]{as.SingleCellExperiment}}.
 #' @param nhood_col Character string. For plain \code{SingleCellExperiment}
 #'   objects (i.e. not \code{Milo}), the name of the \code{colData} column
-#'   that assigns each cell to a neighbourhood.  Not required for
-#'   \code{Milo} objects.
+#'   containing neighbourhood assignments. Not required for \code{Milo}
+#'   objects.
 #' @param clone_id_col Character string. Name of the \code{colData} column
 #'   containing clone identifiers.  If \code{NULL} or not found,
 #'   \code{cdr3_col} is used as a fallback.
