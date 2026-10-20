@@ -39,7 +39,7 @@ is unavailable.  Default: \code{"cdr3_aa_VDJ"}.}
 availability required for a neighbourhood to be considered reliable.
 Neighbourhoods below this threshold are flagged with
 \code{diversity_reliable = FALSE} and their metric values are set to
-\code{NA}.  Default: \code{10}.}
+\code{NA}.  Default: \code{20}.}
 
 \item{metrics}{Character vector of diversity metrics to compute.  Any
 combination of \code{"shannon"}, \code{"norm.entropy"},

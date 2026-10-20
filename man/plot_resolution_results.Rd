@@ -14,7 +14,7 @@ plot_resolution_results(resolution_results, show_error_bars = TRUE)
 must also be present.}
 
 \item{show_error_bars}{A logical value. If \code{TRUE} (the default),
-error bars showing \eqn{\pm}1 SD (\code{sd_cells_per_community}) are
+error bars showing ±1 SD (\code{sd_cells_per_community}) are
 added around each point.}
 }
 \value{
