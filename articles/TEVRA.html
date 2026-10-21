@@ -73,14 +73,9 @@
 <div class="section level2">
 <h2 id="load-data">Load data<a class="anchor" aria-label="anchor" href="#load-data"></a>
 </h2>
-<p>TEVRA accepts a <code>SingleCellExperiment</code> object. Communities
-of transcriptionally similar cells can be computed upstream of the TEVRA
-workflow using any preferred method e.g., <em>miloR</em>,
-<em>metacell</em> or <em>supercell</em>. If discrete communities have
-been defined, these should be stored as a column in
-<code>colData(sce_object)</code>. If overlapping neighbourhoods were
-computed e.g., via <em>miloR</em>, these should be stored as a binary
-<code>nhoods</code> matrix.</p>
+<p>TEVRA accepts a <code>SingleCellExperiment</code> object that has
+been pre-processed, including reference alignment, transcript
+quantification, QC and cell annotation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tevra_example</span><span class="op">)</span></span>
 <span><span class="va">tevra_example</span></span>
@@ -98,12 +93,21 @@ computed e.g., via <em>miloR</em>, these should be stored as a binary
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="create-communities">Create communities<a class="anchor" aria-label="anchor" href="#create-communities"></a>
+<h2 id="defining-cellular-aggregates">Defining cellular aggregates<a class="anchor" aria-label="anchor" href="#defining-cellular-aggregates"></a>
 </h2>
-<p>TEVRA also provides <code><a href="../reference/create_communities.html">create_communities()</a></code>, a custom
-function for community detection. This operates via Leiden partitioning
-of a pre-computed shared-nearest-neighbour graph. The key parameters
-are:</p>
+<p>Communities of transcriptionally similar cells can be computed
+upstream of the TEVRA workflow using any preferred method e.g.,
+<em>miloR</em>, <em>metacell</em> or <em>supercell</em>. If discrete
+communities have been defined, these should be stored as a column in
+<code>colData(sce_object)</code>. If overlapping neighbourhoods were
+computed e.g., via <em>miloR</em>, these should be stored as a binary
+<code>nhoods</code> matrix.</p>
+<p>We recommend utilising purpose-built softwares for community
+detection such as the methods listed above for more robust cell
+aggregation. However, TEVRA can also do this natively with
+create_communities(), a custom function for community detection, by
+Leiden partitioning of the shared-nearest-neighbour graph. The key
+parameters are:</p>
 <ul>
 <li>
 <code>resolution</code>: determines the granularity of
@@ -204,9 +208,9 @@ evaluated via <code><a href="../reference/plot_nhood_sizes.html">plot_nhood_size
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_nhood_sizes.html">plot_nhood_sizes</a></span><span class="op">(</span><span class="va">communities</span><span class="op">$</span><span class="va">communities_summary</span><span class="op">)</span></span></code></pre></div>
 <p><img src="TEVRA_files/figure-html/plot_nhood_sizes-1.png" class="r-plt" alt="" width="672"></p>
-<p>A neighbourhood-level UMAP can be generated via aggregating (mean or
+<p>A community-level UMAP can be generated via aggregating (mean or
 median) the consistuent cells’ individual UMAP coordinates per
-neighbourhood</p>
+community</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sce_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nhood_umap.html">nhood_umap</a></span><span class="op">(</span><span class="va">sce_obj</span>,</span>
 <span>                      nhood_col <span class="op">=</span> <span class="st">"community_id"</span>,</span>
@@ -224,20 +228,19 @@ neighbourhood</p>
 <span><span class="co">#&gt; 6     6         58     2.3985686    1.21709789</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="neighbourhood-level-analysis">Neighbourhood level analysis<a class="anchor" aria-label="anchor" href="#neighbourhood-level-analysis"></a>
+<h2 id="aggregate-level-analysis">Aggregate-level analysis<a class="anchor" aria-label="anchor" href="#aggregate-level-analysis"></a>
 </h2>
-<p>Once cells are aggregated into transcriptionally-defined
-neighbourhoods, these can be fed into TEVRA’s neighbourhood-level
-analysis functions.</p>
+<p>Once cells are aggregated into transcriptionally-defined clusters,
+these can be fed into TEVRA’s aggregate-level analysis functions.</p>
 <div class="section level3">
-<h3 id="neighbourhood-annotation">Neighbourhood annotation<a class="anchor" aria-label="anchor" href="#neighbourhood-annotation"></a>
+<h3 id="cell-type-annotation">Cell type annotation<a class="anchor" aria-label="anchor" href="#cell-type-annotation"></a>
 </h3>
-<p>Each neighbourhood can be annotated according to the most common
-identity among its constituent cells. Specify one or more
-<code>colData</code> columns in <code>annotation_cols</code>. For each
-column, the most frequent value across the neighbourhood’s cells becomes
-the neighbourhood’s annotation, provided it accounts for a proportion of
-cells above the defined <code>threshold</code>.</p>
+<p>Each aggregate can be annotated according to the most common identity
+among its constituent cells. Specify one or more <code>colData</code>
+columns in <code>annotation_cols</code>. For each column, the most
+frequent value across the aggregate’s cells becomes the aggregate’s
+annotation, provided it accounts for a proportion of cells above the
+defined <code>threshold</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sce_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nhood_annotation.html">nhood_annotation</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sce_obj</span>,</span>
 <span>                            annotation_cols <span class="op">=</span> <span class="st">"Bcelltype"</span>,</span>
@@ -267,16 +270,26 @@ cells above the defined <code>threshold</code>.</p>
 <span><span class="co">#&gt; 4     4         84           B1               0.9761905</span></span>
 <span><span class="co">#&gt; 5     5         80           B1               0.9750000</span></span>
 <span><span class="co">#&gt; 6     6         58 Follicular 1               0.7068966</span></span></code></pre></div>
-<p>To investigatethe proportion of cells per neighbourhood with each
-identity without assigning a neighbourhood annotation, run
+<p>To investigate the proportion of cells per aggregate with each
+identity without assigning an annotation, run
 <code><a href="../reference/nhood_annotation_props.html">nhood_annotation_props()</a></code></p>
 </div>
 <div class="section level3">
-<h3 id="neighbourhood-diversity">Neighbourhood diversity<a class="anchor" aria-label="anchor" href="#neighbourhood-diversity"></a>
+<h3 id="isotype-annotation">Isotype annotation<a class="anchor" aria-label="anchor" href="#isotype-annotation"></a>
 </h3>
-<p>The clonal repertoire of each neighbourhood is summarised using
-<code><a href="../reference/nhood_diversity.html">nhood_diversity()</a></code>, selecting the specific diversity metrics
-desired from:</p>
+<p><code><a href="../reference/nhood_annotation.html">nhood_annotation()</a></code> can additionally be used to annotate
+isotype usage (e.g., IGHD, IGHM, IGHA, IGHG) per cellular aggregate.</p>
+</div>
+<div class="section level3">
+<h3 id="clonal-diversity">Clonal diversity<a class="anchor" aria-label="anchor" href="#clonal-diversity"></a>
+</h3>
+<p>The clonal repertoire of each aggregate is summarised using
+<code><a href="../reference/nhood_diversity.html">nhood_diversity()</a></code>. This function incorporates a number of
+different methods to summarise clonal diversity. The most simple is
+<code>clones_per_contig</code>, which is always reported in the output
+and informs the proportion of recovered contigs that represent a unique
+clone. The other available metrics are listed below and must be selected
+by the user to be calculated:</p>
 <ul>
 <li>
 <code>shannon</code>:</li>
@@ -288,12 +301,12 @@ desired from:</p>
 <li><code>gini</code></li>
 <li><code>standardised_n_clones</code></li>
 </ul>
-<p>If clones have not been defined, the raw cdr3 sequence is used as a
+<p>If clones have not been defined, the cdr3 sequence is used as a
 surrogate, although this is not recommended for B cells due to the
 potential for significant sequence modification within clones via
-somatic hypermutation. Metrics are not computed for neighbourhoods with
-less than <code>min_n_contigs</code> as diversity estimates are unstable
-at low sample sizes. Rarefaction or coverage- based standardisation is
+somatic hypermutation. Metrics are not computed for aggregates with less
+than <code>min_n_contigs</code> as diversity estimates are unstable at
+low sample sizes. Rarefaction or coverage- based standardisation is
 recommended due to the sensitivity of diversity estimates to sampling
 depth</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -349,29 +362,58 @@ depth</p>
 <span><span class="co">#&gt; 6               0.002152818           168.0                 NA</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="neighbourhood-cdr3-convergence">Neighbourhood cdr3 convergence<a class="anchor" aria-label="anchor" href="#neighbourhood-cdr3-convergence"></a>
+<h3 id="inter-clonal-cdr3-convergence">Inter-clonal cdr3 convergence<a class="anchor" aria-label="anchor" href="#inter-clonal-cdr3-convergence"></a>
 </h3>
-<p>The similarity of the CDR3 amino acid sequences of different clones
-is computed using <code><a href="../reference/nhood_cdr3_convergence.html">nhood_cdr3_convergence()</a></code>. This is
-computed for both heavy and light chain CDR3 sequences when
-<code>chain</code> = “both”.</p>
-<p>Pairwise distances are computed via <em>pwalign</em>’s
-<code>stringDist()</code> function across all unique (or representative
-when <code>receptor_type</code> = “BCR”) CDR3 amino acid sequences per
-neighbourhood exceeding min_n_contigs and optionally min_clones. These
-are either traditional Levenshtein distances or calculated using
-BLOSUM-weighted substitution scores. Raw alignment distances are then
-normalised to [0,1] by dividing by the length of the longer sequence in
-each pair. To control for variation in clone number across
-neighbourhoods, distance matrices may be downsampled over
-<code>n_boots</code> iterations.</p>
-<p>Pairwise distances matrices are summarised per neighbourhood as a
-global convergence score (mean or median pairwise distance across all
-representative CDR3 sequences), or a local convergence score (mean
-distance of each CDR3 sequence to its k nearest neighbours, averaged
-across representatives). Finally, all distance-based metrics are
-converted to convergence scores via <span class="math inline">\(1 -
-distance\)</span>.</p>
+<p>TEVRA provides a novel inter-clonal CDR3 convergence metric computed
+via <code><a href="../reference/nhood_cdr3_convergence.html">nhood_cdr3_convergence()</a></code>. This reports the similarity
+of the CDR3 amino acid sequences between distinct clonotypes, within
+each aggregate. An aggregate with high CDR3 convergence represents one
+in which clonotypes are converging onto a similar CDR3 sequence, and
+therefore likely respond to the same epitope. Alternatively, an
+aggregate with low CDR3 convergence suggests clonotypes respond to
+multiple antigens or multiple epitopes of the same antigen with
+dissimilar sequences. The function computes this for both heavy and
+light chain CDR3 sequences when <code>chain</code> = “both”. For more
+details on specifically how this metric is computed, refer to the
+section at the end of this vignette.</p>
+<p>The key metrics are:</p>
+<ul>
+<li>
+<code>receptor_type</code>: for TCRs, similarity scores are computed
+between each unique CDR3 sequence as these represent unique clones. For
+BCRs, somatic hypermutation enables CDR3 sequences of the same clone to
+have different sequences. Hence, a representative sequence is first
+selected per clone as the CDR3 sequence that is the most similar to all
+other CDR3 sequences of that clone</li>
+<li>
+<code>min_n_contigs</code>: the minimum number of contigs required
+per aggregate. Must exceed <code>min_clones</code>
+</li>
+<li>
+<code>min_clones</code>: the minimum number of clones required per
+aggregate</li>
+<li>
+<code>distance_method</code>: CDR3 sequences can differ by either
+insertions, deletions or substitutions. All insertions or deletions
+incur a cost of 1. Using Levenshtein distances, all substitutions also
+incur a cost of 1. Using blosum- weighted distances, the cost of
+substitutions is weighted according to the biological significance of
+this substitution (see the end of the vignette for more details). A
+custom substitution matrix can also be supplied with unique substitution
+weightings, ranging from -1 (least costly substitution) to 0 (most
+costly substitution)</li>
+<li>
+<code>summary_metric</code>: inter-clonal convergence scores are
+summarised per aggregate either globally by providing the mean or median
+score or locally. Local convergence scores report the mean distance of
+each CDR3 sequence to its k nearest neighbours, averaged per aggregate
+(see the end of the vignette for more details).</li>
+<li>
+<code>downsample</code>: if TRUE, matrices of clonal convergence
+scores are downsampled to the median clonal count over
+<code>n_boots</code> iterations to control for variation in clone number
+across aggregates</li>
+</ul>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sce_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nhood_cdr3_convergence.html">nhood_cdr3_convergence</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sce_obj</span>,</span>
 <span>                                  nhood_col <span class="op">=</span><span class="st">"community_id"</span>,</span>
@@ -448,11 +490,23 @@ neighbourhood-level summarisation, run
 <code><a href="../reference/nhood_cdr3_convergence_matrices.html">nhood_cdr3_convergence_matrices()</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="merge-neighbourhood-level-analysis">Merge neighbourhood-level analysis<a class="anchor" aria-label="anchor" href="#merge-neighbourhood-level-analysis"></a>
+<h3 id="somatic-hypermutation">Somatic hypermutation<a class="anchor" aria-label="anchor" href="#somatic-hypermutation"></a>
 </h3>
-<p><code><a href="../reference/merge_nhood_results.html">merge_nhood_results()</a></code> easily aggregates all
-neighbourhood-level analyses into a single dataframe for plotting and
-visualisation purposes.</p>
+<p>BCR mutation frequency or counts can be calculated per aggregate
+using <code><a href="../reference/nhood_shm.html">nhood_shm()</a></code>. This function returns either the mean or
+median mutation metric and its standard deviation or interquartile range
+per aggregate.</p>
+</div>
+<div class="section level3">
+<h3 id="merging-multiple-aggregate-level-analysese">Merging multiple aggregate-level analysese<a class="anchor" aria-label="anchor" href="#merging-multiple-aggregate-level-analysese"></a>
+</h3>
+<p>The above functions compute aggregate-level statistics for respective
+analyses. <code><a href="../reference/merge_nhood_results.html">merge_nhood_results()</a></code> easily aggregates all
+neighbourhood-level analyses into a single dataframe, so that each nhood
+has multiple AIRR metrics that can be jointly analysed. For example,
+following merging, users may cluster neighbourhoods using multiple
+parameters derived from the above analyses, such that V(D)J metrics can
+serve an independent axis for cell or aggregate identity.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sce_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/merge_nhood_results.html">merge_nhood_results</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sce_obj</span>,</span>
 <span>                               dataframe_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nhood_umap"</span>, <span class="st">"nhood_annotation"</span>, </span>
@@ -510,6 +564,12 @@ is visualised as a point.</p>
 <div class="section level3">
 <h3 id="neighbourhood-umap">Neighbourhood UMAP<a class="anchor" aria-label="anchor" href="#neighbourhood-umap"></a>
 </h3>
+<p>The aggregated UMAP can be visualised via
+<code><a href="../reference/plot_nhood_umap.html">plot_nhood_umap()</a></code>. This function enables, the aggregates to
+be plotted and to be optionally overlayed onto the original cell-level
+UMAP from which the aggregated coordinates are derived. If the user has
+also computed aggregate similarity weightings e.g., as obtained via
+<em>metacell</em>, these can also be plotted.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cell_umap_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/reducedDims.html" class="external-link">reducedDims</a></span><span class="op">(</span><span class="va">sce_obj</span><span class="op">)</span><span class="op">$</span><span class="va">UMAP</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/row.names.html" class="external-link">row.names</a></span><span class="op">(</span><span class="va">cell_umap_coords</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/row.names.html" class="external-link">row.names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">sce_obj</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -535,6 +595,19 @@ is visualised as a point.</p>
 </h3>
 <p>Visualises the efficiency of contig capture per neighbourhood.
 Follows <code><a href="../reference/nhood_diversity.html">nhood_diversity()</a></code></p>
+<ul>
+<li>
+<code>capture_rate</code> demonstrates the proportion of cells per
+aggregate with a recovered contig as a jitter plot with bix plot
+overlayed. This enables visual investigation of the rate of contig
+recovery per cell type</li>
+<li>
+<code>count_vs_size</code> is a scatter plot with a line of best fit
+overlayed, demonstrating the relationship between aggregate size and the
+number of contigs recovered. A positive, linear relationship is
+expected, with the number of contigs increasing with neighbourhood
+size.</li>
+</ul>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_capture_efficiency.html">plot_capture_efficiency</a></span><span class="op">(</span>nhood_diversity_df <span class="op">=</span> <span class="fu">metadata</span><span class="op">(</span><span class="va">sce_obj</span><span class="op">)</span><span class="op">$</span><span class="va">merged_nhood_analysis</span>, </span>
 <span>                        group_by <span class="op">=</span> <span class="st">"Bcelltype"</span><span class="op">)</span> </span>
@@ -548,6 +621,16 @@ Follows <code><a href="../reference/nhood_diversity.html">nhood_diversity()</a><
 <div class="section level3">
 <h3 id="beeswarm">Beeswarm<a class="anchor" aria-label="anchor" href="#beeswarm"></a>
 </h3>
+<p><code><a href="../reference/plot_nhood_beeswarm.html">plot_nhood_beeswarm()</a></code> visualises neighbourhood analysis
+as a beeswarm plot. A plot is provided per metric listed in
+<code>plot_cols</code>, grouped by the column named in
+<code>group_by</code>, with further faceting by the metric listed in
+<code>facet_by</code>. The reliability column that corresponds to the
+metric to be plotted should be provided in <code>reliability_col</code>
+to ensure that aggregates that were excluded from the relevant analysis
+are not visualised. The user can choose via <code>summary_metric</code>
+whether to report the mean or median and whether this should be for all
+aggregates plotted or per group.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_nhood_beeswarm.html">plot_nhood_beeswarm</a></span><span class="op">(</span><span class="fu">metadata</span><span class="op">(</span><span class="va">sce_obj</span><span class="op">)</span><span class="op">$</span><span class="va">merged_nhood_analysis</span>,</span>
 <span>                    plot_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"clone_per_contig"</span> , <span class="st">"inv.simpson_diversity"</span><span class="op">)</span>,</span>
@@ -563,6 +646,11 @@ Follows <code><a href="../reference/nhood_diversity.html">nhood_diversity()</a><
 <div class="section level3">
 <h3 id="scatter-plot">Scatter plot<a class="anchor" aria-label="anchor" href="#scatter-plot"></a>
 </h3>
+<p>Two metrics can be compared via <code>plot_nhood_scatter</code>. The
+plot can be facetted by naming an annotation of interest in
+<code>facet_by</code>. To ensure unreliable aggregates are not plotted,
+both of the relevant reliability columns corresponding to both metrics
+requested are provided.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_nhood_scatter.html">plot_nhood_scatter</a></span><span class="op">(</span><span class="fu">metadata</span><span class="op">(</span><span class="va">sce_obj</span><span class="op">)</span><span class="op">$</span><span class="va">merged_nhood_analysis</span>,</span>
 <span>                   x_col <span class="op">=</span> <span class="st">"inv.simpson_diversity"</span>,</span>
@@ -573,6 +661,63 @@ Follows <code><a href="../reference/nhood_diversity.html">nhood_diversity()</a><
 <span>                   size_by <span class="op">=</span> <span class="st">"nhood_size"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="TEVRA_files/figure-html/plot_nhood_scatter-1.png" class="r-plt" alt="" width="672"></p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="additional-details-on-inter-clonal-cdr3-convergence">Additional details on inter-clonal CDR3 convergence<a class="anchor" aria-label="anchor" href="#additional-details-on-inter-clonal-cdr3-convergence"></a>
+</h2>
+<p>Pairwise distances are computed via <em>pwalign</em>’s
+<code>stringDist()</code> function across all unique CDR3 amino acid
+sequences per neighbourhood exceeding min_n_contigs and optionally
+min_clones. CDR3 sequences can differ via insertions, deletions or
+substitutions. In all cases, insertions and deletions are assigned a
+cost of 1. For Levenshtein distances, all substitutions also incur a
+cost of 1, hence the maximum cost is the length of the longest sequence
+(all amino acids substituted, insertion of the extra amino acids
+necessary to account for sequence length variation). Substitutions can
+also be weighted according to their biological significance via
+blosum-weighted scores. The raw BLOSUM substitution matrix is converted
+to a cost matrix via <span class="math inline">\(c(i,j) = (s(i,i) +
+s(j,j))/2 - s(i,j)\)</span>. This cost matrix is then normalised to
+[0,1] by dividing each cost by the maximum off-diagonal cost. The
+normalised cost matrix is then negated such that the most costly amino
+acid substitutions score -1 and the least significant substitutions
+score 0. Overall, the maximum distances computed using blosum-weighted
+substitutions is also the length of the longest sequence, which would be
+acheived if all amino acids substitutions were the most costly
+substitution. If the user wishes to use an alternative method of
+substitution weighting, they must provide their own substitution matrix
+which matches the same logic (bounded [-1,0], more similar amino acids
+have a higher score).</p>
+<div class="figure" style="text-align: center">
+<img src="figures/blosum.png" class="r-plt" alt="Transformation of BLOSUM62 substitution score matrix" width="95%"><p class="caption">
+Transformation of BLOSUM62 substitution score matrix
+</p>
+</div>
+<p>Pairwise distances are computed between all CDR3 amino acid sequences
+per aggregate using the above method. However, for BCRs, some of these
+unique sequences belong to the same clone. In this scenario, the CDR3
+sequence with the lowest average pairwise distance to all other
+sequences in the clone is selected. All other sequences are discarded
+from the matrix, such that it contains only one sequence per clone.</p>
+<p>The distance matrix is then summarised to obtain a singular
+convergence score representing the similarity of CDR3 sequences of
+different clones per aggregate. This can be a global convergence score,
+defined as the mean or median pairwise distance across all
+representative CDR3 sequences, or a local score. Local convergence
+scores are computed as the mean distance of each CDR3 sequence to its k
+nearest neighbours, averaged across all representatives in the
+aggregate. This metric is more sensitive to repertoire structure than a
+global average. For example, a neighbourhood containing clones that
+respond to two distinct epitopes would contain two clusters of highly
+similar CDR3s that are dissimilar from one another. Here, global
+convergence would be high due to the difference between these two
+antigens, whilst local convergence would reflect sequence similarity
+within these two groups. By default, k is set adaptively at n/4,where n
+is the number of representatives, with a minimum k of 3; a fixed k can
+also be supplied. Local convergence is not calculated when the number of
+representatives does not exceed k.</p>
+<p>Finally, all distance-based metrics are converted to convergence
+scores via <span class="math inline">\(1 - distance\)</span>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -2,7 +2,7 @@
 
 TEVRA (Transcriptome Embedding-Resolved V(D)J Repertoire Analysis) maps
 immune receptor repertoire features onto transcriptionally defined
-neighbourhoods in single-cell RNA-seq data.
+aggregates in single-cell RNA-seq data.
 
 ![TEVRA summary](reference/figures/TEVRA_summary.png)
 
@@ -22,7 +22,9 @@ See the complete
 [vignette](https://grace-hattersley.github.io/TEVRA/articles/TEVRA.html)
 for a full workflow.
 
-TEVRA takes a processed `SingleCellExperiment` object.
+TEVRA takes a processed `SingleCellExperiment` object that has been pre-
+processed, including reference alignment, transcript quantification, QC
+and cell annotation.
 
 ``` r
 
@@ -30,8 +32,8 @@ library(TEVRA)
 library(Seurat)
 ```
 
-Neighbourhoods can be pre-defined via the user’s preferred method, or
-defined by TEVRA’s
+Aggregates can be pre-defined via the user’s preferred method e.g., via
+*miloR* or *metacell*, or defined by TEVRA’s
 [`create_communities()`](https://grace-hattersley.github.io/TEVRA/reference/create_communities.html)
 function.
 
@@ -91,6 +93,67 @@ plot_nhood_beeswarm(metadata(sce_obj)$nhood_analysis,
                     colour_by = "identity",
                     size_by = "nhood_size")
 ```
+
+## Example data
+
+![TEVRA detailed summary](reference/figures/TEVRA_detailed_summary.png)
+
+TEVRA detailed summary
+
+1.  UMAP of murine splenocyte B cells.
+2.  Community UMAP of murine splenocyte B cells following aggregation.
+    ‘Mixed’ refers to communities where cells do not predominantly
+    (\>50%) belong to a single cluster. Point computed as the median
+    UMAP coordinates of all constituent cells of the community. Point
+    size represents the number of cells in the community.
+3.  AIRR metrics that can be computed per community.
+4.  Representative image of low versus high diversity communities.
+5.  Heatmaps demonstrating high local, high global and low CDR3
+    convergence communities.
+6.  Representative image of low vs high SHM communities.
+7.  Example of output dataframe from TEVRA workflow.
+8.  Inverse Simpson diversity by community, grouped into cell type.
+9.  CDR3 convergence score by community, grouped into cell type. CDR3
+    convergence scores were computed using Levenshtein edit distances.
+
+## Citation
+
+If you use TEVRA, please cite:
+
+> Hattersley G, Lee C (2026). TEVRA: \<TEVRA: Computes and Maps AIRR
+> Features onto Transcriptionally Defined Cellular Aggregates\>. R
+> package version \<0.0.0.9000\>,
+> <https://github.com/grace-hattersley/TEVRA>.
+
+### Acknowledgements
+
+TEVRA builds on several existing tools. If you use TEVRA, please also
+cite them.
+
+**immApex** The diversity functions used by
+[`nhood_diversity()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_diversity.md)
+are adapted from [immApex](https://github.com/BorchLab/immApex)
+(Borcherding N et al.), which is MIT-licensed. The original copyright
+notice and licence text are reproduced in `inst/COPYRIGHTS`.
+
+> Borcherding N, et al. (2026). Pre-transplant TCR Network Topology
+> Predicts Kidney Allograft Rejection Independent of HLA Mismatch.
+> *bioRxiv*. doi:
+> [10.64898/2026.05.04.722749](https://doi.org/10.64898/2026.05.04.722749)
+
+**miloR** Neighbourhoods can be constructed using
+[miloR](https://bioconductor.org/packages/miloR).
+
+> Morgan M, Dann E (2026). miloR: Differential neighbourhood abundance
+> testing on a graph. doi:
+> [10.18129/B9.bioc.miloR](https://doi.org/10.18129/B9.bioc.miloR). R
+> package version 2.8.1, <https://bioconductor.org/packages/miloR>.
+
+**metacell** Metacell-based neighbourhoods use
+[metacell](https://github.com/tanaylab/metacell).
+
+> Tanay A (2021). metacell: Meta cell analysis for single cell RNA-seq
+> data. R package version 0.3.7, <https://github.com/tanaylab/metacell>.
 
 # Package index
 

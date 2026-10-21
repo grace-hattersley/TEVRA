@@ -55,7 +55,7 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="tevra">TEVRA<a class="anchor" aria-label="anchor" href="#tevra"></a>
 </h1></div>
-<p>TEVRA (Transcriptome Embedding-Resolved V(D)J Repertoire Analysis) maps immune receptor repertoire features onto transcriptionally defined neighbourhoods in single-cell RNA-seq data.</p>
+<p>TEVRA (Transcriptome Embedding-Resolved V(D)J Repertoire Analysis) maps immune receptor repertoire features onto transcriptionally defined aggregates in single-cell RNA-seq data.</p>
 <div class="float">
 <img src="reference/figures/TEVRA_summary.png" alt="TEVRA summary"><div class="figcaption">TEVRA summary</div>
 </div>
@@ -70,11 +70,11 @@
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
 <p>See the complete <a href="https://grace-hattersley.github.io/TEVRA/articles/TEVRA.html">vignette</a> for a full workflow.</p>
-<p>TEVRA takes a processed <code>SingleCellExperiment</code> object.</p>
+<p>TEVRA takes a processed <code>SingleCellExperiment</code> object that has been pre- processed, including reference alignment, transcript quantification, QC and cell annotation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://grace-hattersley.github.io/TEVRA">TEVRA</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span></span></code></pre></div>
-<p>Neighbourhoods can be pre-defined via the user’s preferred method, or defined by TEVRA’s <a href="https://grace-hattersley.github.io/TEVRA/reference/create_communities.html"><code>create_communities()</code></a> function.</p>
+<p>Aggregates can be pre-defined via the user’s preferred method e.g., via <em>miloR</em> or <em>metacell</em>, or defined by TEVRA’s <a href="https://grace-hattersley.github.io/TEVRA/reference/create_communities.html"><code>create_communities()</code></a> function.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">communities</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/create_communities.html">create_communities</a></span><span class="op">(</span><span class="va">sce_obj</span>,</span>
 <span>                                  graph.name <span class="op">=</span> <span class="st">"RNA_snn"</span>,</span>
@@ -114,6 +114,49 @@
 <span>                    summary_metric <span class="op">=</span> <span class="st">"group_median"</span>,</span>
 <span>                    colour_by <span class="op">=</span> <span class="st">"identity"</span>,</span>
 <span>                    size_by <span class="op">=</span> <span class="st">"nhood_size"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+</h2>
+<div class="float">
+<img src="reference/figures/TEVRA_detailed_summary.png" alt="TEVRA detailed summary"><div class="figcaption">TEVRA detailed summary</div>
+</div>
+<ol style="list-style-type: upper-alpha">
+<li>UMAP of murine splenocyte B cells.</li>
+<li>Community UMAP of murine splenocyte B cells following aggregation. ‘Mixed’ refers to communities where cells do not predominantly (&gt;50%) belong to a single cluster. Point computed as the median UMAP coordinates of all constituent cells of the community. Point size represents the number of cells in the community.</li>
+<li>AIRR metrics that can be computed per community.</li>
+<li>Representative image of low versus high diversity communities.</li>
+<li>Heatmaps demonstrating high local, high global and low CDR3 convergence communities.</li>
+<li>Representative image of low vs high SHM communities.</li>
+<li>Example of output dataframe from TEVRA workflow.</li>
+<li>Inverse Simpson diversity by community, grouped into cell type.</li>
+<li>CDR3 convergence score by community, grouped into cell type. CDR3 convergence scores were computed using Levenshtein edit distances.</li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>If you use TEVRA, please cite:</p>
+<blockquote>
+<p>Hattersley G, Lee C (2026). TEVRA: &lt;TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates&gt;. R package version &lt;0.0.0.9000&gt;, <a href="https://github.com/grace-hattersley/TEVRA" class="external-link uri">https://github.com/grace-hattersley/TEVRA</a>.</p>
+</blockquote>
+<div class="section level3">
+<h3 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h3>
+<p>TEVRA builds on several existing tools. If you use TEVRA, please also cite them.</p>
+<p><strong>immApex</strong> The diversity functions used by <code><a href="reference/nhood_diversity.html">nhood_diversity()</a></code> are adapted from <a href="https://github.com/BorchLab/immApex" class="external-link">immApex</a> (Borcherding N et al.), which is MIT-licensed. The original copyright notice and licence text are reproduced in <code>inst/COPYRIGHTS</code>.</p>
+<blockquote>
+<p>Borcherding N, et al. (2026). Pre-transplant TCR Network Topology Predicts Kidney Allograft Rejection Independent of HLA Mismatch. <em>bioRxiv</em>. doi: <a href="https://doi.org/10.64898/2026.05.04.722749" class="external-link">10.64898/2026.05.04.722749</a></p>
+</blockquote>
+<p><strong>miloR</strong> Neighbourhoods can be constructed using <a href="https://bioconductor.org/packages/miloR" class="external-link">miloR</a>.</p>
+<blockquote>
+<p>Morgan M, Dann E (2026). miloR: Differential neighbourhood abundance testing on a graph. doi: <a href="https://doi.org/10.18129/B9.bioc.miloR" class="external-link">10.18129/B9.bioc.miloR</a>. R package version 2.8.1, <a href="https://bioconductor.org/packages/miloR" class="external-link uri">https://bioconductor.org/packages/miloR</a>.</p>
+</blockquote>
+<p><strong>metacell</strong> Metacell-based neighbourhoods use <a href="https://github.com/tanaylab/metacell" class="external-link">metacell</a>.</p>
+<blockquote>
+<p>Tanay A (2021). metacell: Meta cell analysis for single cell RNA-seq data. R package version 0.3.7, <a href="https://github.com/tanaylab/metacell" class="external-link uri">https://github.com/tanaylab/metacell</a>.</p>
+</blockquote>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

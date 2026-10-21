@@ -10,13 +10,9 @@ set.seed(0)
 
 ## Load data
 
-TEVRA accepts a `SingleCellExperiment` object. Communities of
-transcriptionally similar cells can be computed upstream of the TEVRA
-workflow using any preferred method e.g., *miloR*, *metacell* or
-*supercell*. If discrete communities have been defined, these should be
-stored as a column in `colData(sce_object)`. If overlapping
-neighbourhoods were computed e.g., via *miloR*, these should be stored
-as a binary `nhoods` matrix.
+TEVRA accepts a `SingleCellExperiment` object that has been
+pre-processed, including reference alignment, transcript quantification,
+QC and cell annotation.
 
 ``` r
 
@@ -36,13 +32,20 @@ tevra_example
 #> altExpNames(0):
 ```
 
-## Create communities
+## Defining cellular aggregates
 
-TEVRA also provides
-[`create_communities()`](https://grace-hattersley.github.io/TEVRA/reference/create_communities.md),
-a custom function for community detection. This operates via Leiden
-partitioning of a pre-computed shared-nearest-neighbour graph. The key
-parameters are:
+Communities of transcriptionally similar cells can be computed upstream
+of the TEVRA workflow using any preferred method e.g., *miloR*,
+*metacell* or *supercell*. If discrete communities have been defined,
+these should be stored as a column in `colData(sce_object)`. If
+overlapping neighbourhoods were computed e.g., via *miloR*, these should
+be stored as a binary `nhoods` matrix.
+
+We recommend utilising purpose-built softwares for community detection
+such as the methods listed above for more robust cell aggregation.
+However, TEVRA can also do this natively with create_communities(), a
+custom function for community detection, by Leiden partitioning of the
+shared-nearest-neighbour graph. The key parameters are:
 
 - `resolution`: determines the granularity of clustering
 - `min_cells`: informs the minimum number of cells per community. Cells
@@ -159,9 +162,8 @@ plot_nhood_sizes(communities$communities_summary)
 
 ![](TEVRA_files/figure-html/plot_nhood_sizes-1.png)
 
-A neighbourhood-level UMAP can be generated via aggregating (mean or
-median) the consistuent cells’ individual UMAP coordinates per
-neighbourhood
+A community-level UMAP can be generated via aggregating (mean or median)
+the consistuent cells’ individual UMAP coordinates per community
 
 ``` r
 
@@ -181,19 +183,18 @@ head(metadata(sce_obj)$nhood_umap)
 #> 6     6         58     2.3985686    1.21709789
 ```
 
-## Neighbourhood level analysis
+## Aggregate-level analysis
 
-Once cells are aggregated into transcriptionally-defined neighbourhoods,
-these can be fed into TEVRA’s neighbourhood-level analysis functions.
+Once cells are aggregated into transcriptionally-defined clusters, these
+can be fed into TEVRA’s aggregate-level analysis functions.
 
-### Neighbourhood annotation
+### Cell type annotation
 
-Each neighbourhood can be annotated according to the most common
-identity among its constituent cells. Specify one or more `colData`
-columns in `annotation_cols`. For each column, the most frequent value
-across the neighbourhood’s cells becomes the neighbourhood’s annotation,
-provided it accounts for a proportion of cells above the defined
-`threshold`.
+Each aggregate can be annotated according to the most common identity
+among its constituent cells. Specify one or more `colData` columns in
+`annotation_cols`. For each column, the most frequent value across the
+aggregate’s cells becomes the aggregate’s annotation, provided it
+accounts for a proportion of cells above the defined `threshold`.
 
 ``` r
 
@@ -227,15 +228,25 @@ head(metadata(sce_obj)$nhood_annotation)
 #> 6     6         58 Follicular 1               0.7068966
 ```
 
-To investigatethe proportion of cells per neighbourhood with each
-identity without assigning a neighbourhood annotation, run
+To investigate the proportion of cells per aggregate with each identity
+without assigning an annotation, run
 [`nhood_annotation_props()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_annotation_props.md)
 
-### Neighbourhood diversity
+### Isotype annotation
 
-The clonal repertoire of each neighbourhood is summarised using
-[`nhood_diversity()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_diversity.md),
-selecting the specific diversity metrics desired from:
+[`nhood_annotation()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_annotation.md)
+can additionally be used to annotate isotype usage (e.g., IGHD, IGHM,
+IGHA, IGHG) per cellular aggregate.
+
+### Clonal diversity
+
+The clonal repertoire of each aggregate is summarised using
+[`nhood_diversity()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_diversity.md).
+This function incorporates a number of different methods to summarise
+clonal diversity. The most simple is `clones_per_contig`, which is
+always reported in the output and informs the proportion of recovered
+contigs that represent a unique clone. The other available metrics are
+listed below and must be selected by the user to be calculated:
 
 - `shannon`:
 - `norm.entropy`
@@ -246,14 +257,13 @@ selecting the specific diversity metrics desired from:
 - `gini`
 - `standardised_n_clones`
 
-If clones have not been defined, the raw cdr3 sequence is used as a
+If clones have not been defined, the cdr3 sequence is used as a
 surrogate, although this is not recommended for B cells due to the
 potential for significant sequence modification within clones via
-somatic hypermutation. Metrics are not computed for neighbourhoods with
-less than `min_n_contigs` as diversity estimates are unstable at low
-sample sizes. Rarefaction or coverage- based standardisation is
-recommended due to the sensitivity of diversity estimates to sampling
-depth
+somatic hypermutation. Metrics are not computed for aggregates with less
+than `min_n_contigs` as diversity estimates are unstable at low sample
+sizes. Rarefaction or coverage- based standardisation is recommended due
+to the sensitivity of diversity estimates to sampling depth
 
 ``` r
 
@@ -309,30 +319,49 @@ head(metadata(sce_obj)$nhood_diversity)
 #> 6               0.002152818           168.0                 NA
 ```
 
-### Neighbourhood cdr3 convergence
+### Inter-clonal cdr3 convergence
 
-The similarity of the CDR3 amino acid sequences of different clones is
-computed using
+TEVRA provides a novel inter-clonal CDR3 convergence metric computed via
 [`nhood_cdr3_convergence()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_cdr3_convergence.md).
-This is computed for both heavy and light chain CDR3 sequences when
-`chain` = “both”.
+This reports the similarity of the CDR3 amino acid sequences between
+distinct clonotypes, within each aggregate. An aggregate with high CDR3
+convergence represents one in which clonotypes are converging onto a
+similar CDR3 sequence, and therefore likely respond to the same epitope.
+Alternatively, an aggregate with low CDR3 convergence suggests
+clonotypes respond to multiple antigens or multiple epitopes of the same
+antigen with dissimilar sequences. The function computes this for both
+heavy and light chain CDR3 sequences when `chain` = “both”. For more
+details on specifically how this metric is computed, refer to the
+section at the end of this vignette.
 
-Pairwise distances are computed via *pwalign*’s `stringDist()` function
-across all unique (or representative when `receptor_type` = “BCR”) CDR3
-amino acid sequences per neighbourhood exceeding min_n_contigs and
-optionally min_clones. These are either traditional Levenshtein
-distances or calculated using BLOSUM-weighted substitution scores. Raw
-alignment distances are then normalised to \[0,1\] by dividing by the
-length of the longer sequence in each pair. To control for variation in
-clone number across neighbourhoods, distance matrices may be downsampled
-over `n_boots` iterations.
+The key metrics are:
 
-Pairwise distances matrices are summarised per neighbourhood as a global
-convergence score (mean or median pairwise distance across all
-representative CDR3 sequences), or a local convergence score (mean
-distance of each CDR3 sequence to its k nearest neighbours, averaged
-across representatives). Finally, all distance-based metrics are
-converted to convergence scores via \\1 - distance\\.
+- `receptor_type`: for TCRs, similarity scores are computed between each
+  unique CDR3 sequence as these represent unique clones. For BCRs,
+  somatic hypermutation enables CDR3 sequences of the same clone to have
+  different sequences. Hence, a representative sequence is first
+  selected per clone as the CDR3 sequence that is the most similar to
+  all other CDR3 sequences of that clone
+- `min_n_contigs`: the minimum number of contigs required per aggregate.
+  Must exceed `min_clones`
+- `min_clones`: the minimum number of clones required per aggregate
+- `distance_method`: CDR3 sequences can differ by either insertions,
+  deletions or substitutions. All insertions or deletions incur a cost
+  of 1. Using Levenshtein distances, all substitutions also incur a cost
+  of 1. Using blosum- weighted distances, the cost of substitutions is
+  weighted according to the biological significance of this substitution
+  (see the end of the vignette for more details). A custom substitution
+  matrix can also be supplied with unique substitution weightings,
+  ranging from -1 (least costly substitution) to 0 (most costly
+  substitution)
+- `summary_metric`: inter-clonal convergence scores are summarised per
+  aggregate either globally by providing the mean or median score or
+  locally. Local convergence scores report the mean distance of each
+  CDR3 sequence to its k nearest neighbours, averaged per aggregate (see
+  the end of the vignette for more details).
+- `downsample`: if TRUE, matrices of clonal convergence scores are
+  downsampled to the median clonal count over `n_boots` iterations to
+  control for variation in clone number across aggregates
 
 ``` r
 
@@ -412,11 +441,24 @@ To investigate the raw convergence matrices without neighbourhood-level
 summarisation, run
 [`nhood_cdr3_convergence_matrices()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_cdr3_convergence_matrices.md).
 
-### Merge neighbourhood-level analysis
+### Somatic hypermutation
 
+BCR mutation frequency or counts can be calculated per aggregate using
+[`nhood_shm()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_shm.md).
+This function returns either the mean or median mutation metric and its
+standard deviation or interquartile range per aggregate.
+
+### Merging multiple aggregate-level analysese
+
+The above functions compute aggregate-level statistics for respective
+analyses.
 [`merge_nhood_results()`](https://grace-hattersley.github.io/TEVRA/reference/merge_nhood_results.md)
 easily aggregates all neighbourhood-level analyses into a single
-dataframe for plotting and visualisation purposes.
+dataframe, so that each nhood has multiple AIRR metrics that can be
+jointly analysed. For example, following merging, users may cluster
+neighbourhoods using multiple parameters derived from the above
+analyses, such that V(D)J metrics can serve an independent axis for cell
+or aggregate identity.
 
 ``` r
 
@@ -475,6 +517,14 @@ visualised as a point.
 
 ### Neighbourhood UMAP
 
+The aggregated UMAP can be visualised via
+[`plot_nhood_umap()`](https://grace-hattersley.github.io/TEVRA/reference/plot_nhood_umap.md).
+This function enables, the aggregates to be plotted and to be optionally
+overlayed onto the original cell-level UMAP from which the aggregated
+coordinates are derived. If the user has also computed aggregate
+similarity weightings e.g., as obtained via *metacell*, these can also
+be plotted.
+
 ``` r
 
 cell_umap_coords <- as.data.frame(reducedDims(sce_obj)$UMAP)
@@ -503,6 +553,15 @@ plot_nhood_umap(metadata(sce_obj)$merged_nhood_analysis,
 Visualises the efficiency of contig capture per neighbourhood. Follows
 [`nhood_diversity()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_diversity.md)
 
+- `capture_rate` demonstrates the proportion of cells per aggregate with
+  a recovered contig as a jitter plot with bix plot overlayed. This
+  enables visual investigation of the rate of contig recovery per cell
+  type
+- `count_vs_size` is a scatter plot with a line of best fit overlayed,
+  demonstrating the relationship between aggregate size and the number
+  of contigs recovered. A positive, linear relationship is expected,
+  with the number of contigs increasing with neighbourhood size.
+
 ``` r
 
 plot_capture_efficiency(nhood_diversity_df = metadata(sce_obj)$merged_nhood_analysis, 
@@ -519,6 +578,16 @@ plot_capture_efficiency(nhood_diversity_df = metadata(sce_obj)$merged_nhood_anal
 ![](TEVRA_files/figure-html/plot_capture_efficiency-2.png)
 
 ### Beeswarm
+
+[`plot_nhood_beeswarm()`](https://grace-hattersley.github.io/TEVRA/reference/plot_nhood_beeswarm.md)
+visualises neighbourhood analysis as a beeswarm plot. A plot is provided
+per metric listed in `plot_cols`, grouped by the column named in
+`group_by`, with further faceting by the metric listed in `facet_by`.
+The reliability column that corresponds to the metric to be plotted
+should be provided in `reliability_col` to ensure that aggregates that
+were excluded from the relevant analysis are not visualised. The user
+can choose via `summary_metric` whether to report the mean or median and
+whether this should be for all aggregates plotted or per group.
 
 ``` r
 
@@ -537,6 +606,11 @@ plot_nhood_beeswarm(metadata(sce_obj)$merged_nhood_analysis,
 
 ### Scatter plot
 
+Two metrics can be compared via `plot_nhood_scatter`. The plot can be
+facetted by naming an annotation of interest in `facet_by`. To ensure
+unreliable aggregates are not plotted, both of the relevant reliability
+columns corresponding to both metrics requested are provided.
+
 ``` r
 
 plot_nhood_scatter(metadata(sce_obj)$merged_nhood_analysis,
@@ -549,3 +623,60 @@ plot_nhood_scatter(metadata(sce_obj)$merged_nhood_analysis,
 ```
 
 ![](TEVRA_files/figure-html/plot_nhood_scatter-1.png)
+
+## Additional details on inter-clonal CDR3 convergence
+
+Pairwise distances are computed via *pwalign*’s `stringDist()` function
+across all unique CDR3 amino acid sequences per neighbourhood exceeding
+min_n_contigs and optionally min_clones. CDR3 sequences can differ via
+insertions, deletions or substitutions. In all cases, insertions and
+deletions are assigned a cost of 1. For Levenshtein distances, all
+substitutions also incur a cost of 1, hence the maximum cost is the
+length of the longest sequence (all amino acids substituted, insertion
+of the extra amino acids necessary to account for sequence length
+variation). Substitutions can also be weighted according to their
+biological significance via blosum-weighted scores. The raw BLOSUM
+substitution matrix is converted to a cost matrix via \\c(i,j) =
+(s(i,i) + s(j,j))/2 - s(i,j)\\. This cost matrix is then normalised to
+\[0,1\] by dividing each cost by the maximum off-diagonal cost. The
+normalised cost matrix is then negated such that the most costly amino
+acid substitutions score -1 and the least significant substitutions
+score 0. Overall, the maximum distances computed using blosum-weighted
+substitutions is also the length of the longest sequence, which would be
+acheived if all amino acids substitutions were the most costly
+substitution. If the user wishes to use an alternative method of
+substitution weighting, they must provide their own substitution matrix
+which matches the same logic (bounded \[-1,0\], more similar amino acids
+have a higher score).
+
+![Transformation of BLOSUM62 substitution score
+matrix](figures/blosum.png)
+
+Transformation of BLOSUM62 substitution score matrix
+
+Pairwise distances are computed between all CDR3 amino acid sequences
+per aggregate using the above method. However, for BCRs, some of these
+unique sequences belong to the same clone. In this scenario, the CDR3
+sequence with the lowest average pairwise distance to all other
+sequences in the clone is selected. All other sequences are discarded
+from the matrix, such that it contains only one sequence per clone.
+
+The distance matrix is then summarised to obtain a singular convergence
+score representing the similarity of CDR3 sequences of different clones
+per aggregate. This can be a global convergence score, defined as the
+mean or median pairwise distance across all representative CDR3
+sequences, or a local score. Local convergence scores are computed as
+the mean distance of each CDR3 sequence to its k nearest neighbours,
+averaged across all representatives in the aggregate. This metric is
+more sensitive to repertoire structure than a global average. For
+example, a neighbourhood containing clones that respond to two distinct
+epitopes would contain two clusters of highly similar CDR3s that are
+dissimilar from one another. Here, global convergence would be high due
+to the difference between these two antigens, whilst local convergence
+would reflect sequence similarity within these two groups. By default, k
+is set adaptively at n/4,where n is the number of representatives, with
+a minimum k of 3; a fixed k can also be supplied. Local convergence is
+not calculated when the number of representatives does not exceed k.
+
+Finally, all distance-based metrics are converted to convergence scores
+via \\1 - distance\\.
