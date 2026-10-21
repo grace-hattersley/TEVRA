@@ -1,8 +1,7 @@
 Package: TEVRA
 Title: TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates
 Version: 0.0.0.9000
-Authors@R: person("Grace", "Hattersley", , "gracehattersley@gmail.com", role = c("aut", "cre")),
-person("Colin", "Lee", role = "aut")
+Authors@R: c(person("Grace", "Hattersley", , "gracehattersley@gmail.com", role = c("aut", "cre")), person("Colin", "Lee", role = "aut"))
 Description: TEVRA takes as input paired scRNA-seq and scBCR/TCR-seq data after
     standard preprocessing. Transcriptional neighbourhoods can be defined via 
     Leiden clustering of a k-nearest-neighbour graph, or the 
