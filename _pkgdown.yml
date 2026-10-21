@@ -2,6 +2,11 @@ url: https://grace-hattersley.github.io/TEVRA/
 template:
   bootstrap: 5
   math-rendering: mathjax
+navbar:
+  components:
+    intro:
+      text: Vignette
+      href: articles/TEVRA.html
 reference:
 - title: Neighbourhood construction
   desc: Define transcriptional neighbourhoods and choose a clustering resolution.

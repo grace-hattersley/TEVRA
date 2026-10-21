@@ -2,14 +2,14 @@
 
 TEVRA (Transcriptome Embedding-Resolved V(D)J Repertoire Analysis) maps
 immune receptor repertoire features onto transcriptionally defined
-aggregates in single-cell RNA-seq data.
+cell aggregates in single-cell RNA-seq data.
 
-![TEVRA summary](man/figures/TEVRA_summary.png)
+![TEVRA graphical abstract](man/figures/TEVRA_summary.png)
 
 ## Installation
 
 ```r
-# install.packages("remotes")
+# install.packages("remotes") #(if required)
 remotes::install_github("grace-hattersley/TEVRA")
 ```
 
@@ -18,7 +18,7 @@ remotes::install_github("grace-hattersley/TEVRA")
 See the complete [vignette](https://grace-hattersley.github.io/TEVRA/articles/TEVRA.html)
 for a full workflow.
 
-TEVRA takes a processed `SingleCellExperiment` object that has been pre-
+TEVRA takes a `SingleCellExperiment` object that has been pre-
 processed, including reference alignment, transcript quantification, QC and cell 
 annotation.
 
@@ -27,7 +27,7 @@ library(TEVRA)
 library(Seurat)
 ```
 
-Aggregates can be pre-defined via the user's preferred method e.g., via *miloR* 
+Aggregates can be pre-defined via the user's preferred method e.g., *miloR* 
 or *metacell*, or defined by TEVRA's 
 [`create_communities()`](https://grace-hattersley.github.io/TEVRA/reference/create_communities.html) 
 function.
@@ -42,12 +42,13 @@ communities <- create_communities(sce_obj,
 sce_obj <- communities$sce                                  
 ```
 
-AIRR metrics can be computed per neighbourhood for `SingleCellExperiment` objects 
-via specifying the column in `colData` that contains the neighbourhood ID
+AIRR metrics can be computed per aggregate for `SingleCellExperiment` objects 
+via specifying the column in `colData` that contains the aggregate ID. The 
+function below calculates clonal diversity metrics per aggregate.
 
 ```r
 sce_obj <- nhood_diversity(sce_obj,
-                           nhood_col = "community_id",
+                           nhood_col = "community_id", # or metacell_ID, etc.
                            clone_id_col = "clone",
                            min_n_contigs = 10,
                            metrics = c("shannon", "inv.simpson", "gini.simpson", "chao1"),
@@ -55,7 +56,9 @@ sce_obj <- nhood_diversity(sce_obj,
                            n_boots = 100)
 ```
 
-For `Milo` objects, the function will extract the `nhoods` matrix directly
+For `Milo` objects, the function will extract the `nhoods` matrix directly. The
+function below illustrates this on a function that computes inter-clonal CDR3
+convergence per aggregate.
 
 ```r
 milo_obj <- nhood_cdr3_convergence(object = milo_obj,
@@ -71,7 +74,7 @@ milo_obj <- nhood_cdr3_convergence(object = milo_obj,
                                   n_boots = 100) 
 ```
 
-Neighbourhood-level AIRR metrics can then be visualised
+Aggregate-level AIRR metrics can then be visualised.
 
 ```r
 plot_nhood_beeswarm(metadata(sce_obj)$nhood_analysis,
@@ -83,9 +86,12 @@ plot_nhood_beeswarm(metadata(sce_obj)$nhood_analysis,
                     size_by = "nhood_size")
 ```
 
-## Example data
+For full suite of function, refer to the [vignette](https://grace-hattersley.github.io/TEVRA/articles/TEVRA.html).
 
-![TEVRA detailed summary](man/figures/TEVRA_detailed_summary.png)
+
+## Example workflow
+
+![TEVRA workflow](man/figures/TEVRA_detailed_summary.png)
 
 A) UMAP of murine splenocyte B cells. 
 B) Community UMAP of murine splenocyte B cells following aggregation. ‘Mixed’ refers to communities where cells do not predominantly (>50%) belong to a single cluster.  Point computed as the median UMAP coordinates of all constituent cells of the community. Point size represents the number of cells in the community. 
@@ -101,18 +107,17 @@ I) CDR3 convergence score by community, grouped into cell type. CDR3 convergence
 
 If you use TEVRA, please cite:
 
-> Hattersley G, Lee C (2026). TEVRA: <TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates>. R package version
+> Hattersley G, Lee C (2026). <TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates>. R package version
 > <0.0.0.9000>, https://github.com/grace-hattersley/TEVRA.
 
 ### Acknowledgements
 
-TEVRA builds on several existing tools. If you use TEVRA, please also cite them.
+TEVRA builds on several existing tools. 
 
 **immApex**
-The diversity functions used by `nhood_diversity()` are adapted from
-[immApex](https://github.com/BorchLab/immApex) (Borcherding N et al.), which is
-MIT-licensed. The original copyright notice and licence text are reproduced in
-`inst/COPYRIGHTS`.
+The diversity formulas used by `nhood_diversity()` call functions from
+[immApex](https://github.com/BorchLab/immApex) (Borcherding N et al.). The 
+original copyright notice and licence text are reproduced in `inst/COPYRIGHTS`.
 
 > Borcherding N, et al. (2026). Pre-transplant TCR Network Topology Predicts
 > Kidney Allograft Rejection Independent of HLA Mismatch. *bioRxiv*.
