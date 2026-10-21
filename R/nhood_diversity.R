@@ -793,11 +793,11 @@ nhood_diversity <- function(object,
 
 ##### Diversity calculation functions #####
 ## Adapted from immApex (BorchLab), R/diversity.R, v1.7.2 (devel):
-## https://github.com/BorchLab/immApex/blob/devel/R/diversity.R
-## Copyright (c) Nick Borcherding; immApex is MIT-licensed. Function bodies are
+## https://github.com/BorchLab/immApex
+## Copyright (c) 2024 immApex authors; immApex is MIT-licensed. Function bodies are
 ## unchanged apart from being renamed with a leading '.'. Only the functions
 ## used by nhood_diversity() are retained, and roxygen documentation has been
-## edited. See LICENSE.note / inst/COPYRIGHTS.
+## edited. See inst/COPYRIGHTS for the full license text.
 
 #' Shannon Diversity Index (Entropy)
 #'

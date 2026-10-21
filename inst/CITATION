@@ -1,0 +1,8 @@
+bibentry(
+  "Manual",
+  title  = "TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates",
+  author = c(person("Grace", "Hattersley"), person("Colin", "Lee")),
+  year   = "2026",
+  note   = "R package version 0.0.0.9000",
+  url    = "https://github.com/grace-hattersley/TEVRA"
+)

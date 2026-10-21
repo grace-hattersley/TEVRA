@@ -13,6 +13,7 @@ Description: TEVRA takes as input paired scRNA-seq and scBCR/TCR-seq data after
     sequence length, where relevant. Computed features are then assigned back 
     onto neighbourhoods for visualisation and downstream analysis.
 License: MIT + file LICENSE
+Copyright: inst/COPYRIGHTS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
