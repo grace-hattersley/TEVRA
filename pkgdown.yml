@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   TEVRA: TEVRA.html
-last_built: 2026-10-21T07:53Z
+last_built: 2026-10-21T09:07Z
 urls:
   reference: https://grace-hattersley.github.io/TEVRA/reference
   article: https://grace-hattersley.github.io/TEVRA/articles
