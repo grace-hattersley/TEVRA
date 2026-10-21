@@ -58,17 +58,13 @@ nhood_diversity(
 
   Character vector of diversity metrics to compute. Any combination of
   `"shannon"`, `"norm.entropy"`, `"inv.simpson"`, `"gini.simpson"`,
-  `"chao1"`, `"ace"`, `"gini"` and `"standardised_n_clones"`. Default:
-  `c("shannon", "inv.simpson", "gini.simpson", "chao1")`.
-  `"standardised_n_clones"` can only be requested if
-  `downsample_method = "coverage"`. This computes coverage-standardised
-  observed clone richness via
+  `"chao1"`, `"ace"`, `"gini"` and `"standardised_n_clones"`.
+  `"standardised_n_clones"` computes coverage-standardised observed
+  clone richness via
   [`iNEXT::estimateD`](https://rdrr.io/pkg/iNEXT/man/estimateD.html)
-  with Hill number order \\q = 0\\, and is not available under any other
-  downsampling method. Note that `"chao1"`, `"ace"`, `"norm.entropy"`,
-  and `"gini"` are not coverage-standardised when
-  `downsample_method = "coverage"`; they are computed on observed counts
-  directly.
+  with Hill number order \\q = 0\\ and can only be requested if
+  `downsample_method = "coverage"`. Default:
+  `c("shannon", "inv.simpson", "gini.simpson", "chao1")`.
 
 - downsample_method:
 
@@ -80,13 +76,13 @@ nhood_diversity(
   :   Random subsampling to the median contig count across valid
       neighbourhoods (base R implementation). The rarefaction depth is
       reported at runtime. Neighbourhoods whose contig count is at or
-      below the rarefaction depth are not downsampled and are used
-      as-is; this can occur frequently when neighbourhood sizes vary
-      widely. Rarefaction is preferred when communities are highly
-      diverse or singleton-dominated, as it standardises sample size
-      rather than coverage. `"chao1"` and `"ace"` are not rarefied; they
-      are computed on observed counts and `<metric>_diversity_sd` is
-      `NA` for these metrics.
+      below the rarefaction depth are not downsampled; this can occur
+      frequently when neighbourhood sizes vary widely. Rarefaction is
+      preferred when communities are highly diverse or singleton-
+      dominated, as it standardises sample size rather than coverage.
+      `"chao1"` and `"ace"` are not rarefied; they are computed on
+      observed counts and `<metric>_diversity_sd` is `NA` for these
+      metrics.
 
   `"vegan_rarefaction"`
 
@@ -100,7 +96,7 @@ nhood_diversity(
   :   Coverage-based standardisation via
       [`iNEXT::estimateD`](https://rdrr.io/pkg/iNEXT/man/estimateD.html).
       Requires the iNEXT package. The target coverage is set to the
-      median Good's coverage (1 - singletons / n) across valid
+      median Good's coverage (\\1 - singletons / n\\) across valid
       neighbourhoods and is reported at runtime. Coverage-based
       standardisation is preferred when neighbourhood sizes are large
       and relatively uniform. If the reported target coverage is very
@@ -169,7 +165,7 @@ following columns:
 
 - `coverage`:
 
-  Good's coverage estimate (1 - singletons / n_contigs).
+  Good's coverage estimate (\\1 - singletons / n_contigs\\).
 
 - `diversity_reliable`:
 
@@ -227,9 +223,9 @@ from diversity calculations but are still counted in `nhood_size`.
 
 ### Metric selection
 
-The `.chao1_richness` helper uses the bias-corrected Chao1 formula
-(\\S\_{obs} + F_1(F_1-1) / (2(F_2+1))\\) rather than the classic formula
-(\\S\_{obs} + F_1^2 / (2 F_2)\\).
+The bias-corrected Chao1 formula (\\S\_{obs} + F_1(F_1-1) /
+(2(F_2+1))\\) is used rather than the classicformula (\\S\_{obs} + F_1^2
+/ (2 F_2)\\).
 
 ### Downsampling and metric compatibility
 

@@ -108,15 +108,11 @@ Neighbourhoods below this threshold are flagged with
 combination of <code>"shannon"</code>, <code>"norm.entropy"</code>,
 <code>"inv.simpson"</code>, <code>"gini.simpson"</code>, <code>"chao1"</code>, <code>"ace"</code>,
 <code>"gini"</code> and <code>"standardised_n_clones"</code>.
-Default: <code>c("shannon", "inv.simpson", "gini.simpson", "chao1")</code>.
-<code>"standardised_n_clones"</code> can only be requested if
-<code>downsample_method = "coverage"</code>. This computes coverage-standardised
-observed clone richness via <code><a href="https://rdrr.io/pkg/iNEXT/man/estimateD.html" class="external-link">iNEXT::estimateD</a></code> with Hill number order
-\(q = 0\), and is not available under any other downsampling method.
-Note that <code>"chao1"</code>, <code>"ace"</code>, <code>"norm.entropy"</code>, and
-<code>"gini"</code> are not coverage-standardised when
-<code>downsample_method = "coverage"</code>; they are computed on observed
-counts directly.</p></dd>
+<code>"standardised_n_clones"</code> computes coverage-standardised observed
+clone richness via <code><a href="https://rdrr.io/pkg/iNEXT/man/estimateD.html" class="external-link">iNEXT::estimateD</a></code> with Hill number order
+\(q = 0\) and can only be requested if
+<code>downsample_method = "coverage"</code>.
+Default: <code>c("shannon", "inv.simpson", "gini.simpson", "chao1")</code>.</p></dd>
 
 
 <dt id="arg-downsample-method">downsample_method<a class="anchor" aria-label="anchor" href="#arg-downsample-method"></a></dt>
@@ -126,13 +122,13 @@ One of:</p><dl><dt><code>"rarefaction"</code></dt>
 <dd><p>Random subsampling to the median contig
 count across valid neighbourhoods (base R implementation). The
 rarefaction depth is reported at runtime. Neighbourhoods whose contig
-count is at or below the rarefaction depth are not downsampled and are
-used as-is; this can occur frequently when neighbourhood sizes vary
-widely.  Rarefaction is preferred when communities are highly diverse
-or singleton-dominated, as it standardises sample size rather than
-coverage. <code>"chao1"</code> and <code>"ace"</code> are not rarefied; they are
-computed on observed counts and <code>&lt;metric&gt;_diversity_sd</code> is
-<code>NA</code> for these metrics.</p></dd>
+count is at or below the rarefaction depth are not downsampled; this
+can occur frequently when neighbourhood sizes vary widely.  Rarefaction
+is preferred when communities are highly diverse or singleton-
+dominated, as it standardises sample size rather than coverage.
+<code>"chao1"</code> and <code>"ace"</code> are not rarefied; they are computed on
+observed counts and <code>&lt;metric&gt;_diversity_sd</code> is <code>NA</code> for these
+metrics.</p></dd>
 
 <dt><code>"vegan_rarefaction"</code></dt>
 <dd><p>As above, using
@@ -143,7 +139,7 @@ guidance on rarefaction depth interpretation and <code>"chao1"</code>/
 <dt><code>"coverage"</code></dt>
 <dd><p>Coverage-based standardisation via
 <code><a href="https://rdrr.io/pkg/iNEXT/man/estimateD.html" class="external-link">iNEXT::estimateD</a></code>. Requires the <span class="pkg">iNEXT</span> package. The target
-coverage is set to the median Good's coverage (1 - singletons / n)
+coverage is set to the median Good's coverage (\(1 - singletons / n\))
 across valid neighbourhoods and is reported at runtime. Coverage-based
 standardisation is preferred when neighbourhood sizes are large and
 relatively uniform.  If the reported target coverage is very low (near
@@ -208,7 +204,7 @@ expansion.</p></dd>
 
 <dt><code>coverage</code></dt>
 <dd><p>Good's coverage estimate
-(1 - singletons / n_contigs).</p></dd>
+(\(1 - singletons / n_contigs\)).</p></dd>
 
 <dt><code>diversity_reliable</code></dt>
 <dd><p>Logical; <code>TRUE</code> if
@@ -276,9 +272,8 @@ counted in <code>nhood_size</code>.</p>
 <h3 id="metric-selection">Metric selection<a class="anchor" aria-label="anchor" href="#metric-selection"></a></h3>
 
 
-<p>The <code>.chao1_richness</code> helper uses the bias-corrected Chao1 formula
-(\(S_{obs} + F_1(F_1-1) / (2(F_2+1))\)) rather than the classic formula
-(\(S_{obs} + F_1^2 / (2 F_2)\)).</p>
+<p>The bias-corrected Chao1 formula (\(S_{obs} + F_1(F_1-1) / (2(F_2+1))\))
+is used rather than the classicformula (\(S_{obs} + F_1^2 / (2 F_2)\)).</p>
 </div>
 
 <div class="section">
