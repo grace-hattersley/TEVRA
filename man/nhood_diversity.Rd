@@ -46,15 +46,11 @@ Neighbourhoods below this threshold are flagged with
 combination of \code{"shannon"}, \code{"norm.entropy"},
 \code{"inv.simpson"}, \code{"gini.simpson"}, \code{"chao1"}, \code{"ace"},
 \code{"gini"} and \code{"standardised_n_clones"}.
-Default: \code{c("shannon", "inv.simpson", "gini.simpson", "chao1")}.
-\code{"standardised_n_clones"} can only be requested if
-\code{downsample_method = "coverage"}. This computes coverage-standardised
-observed clone richness via \code{iNEXT::estimateD} with Hill number order
-\eqn{q = 0}, and is not available under any other downsampling method.
-Note that \code{"chao1"}, \code{"ace"}, \code{"norm.entropy"}, and
-\code{"gini"} are not coverage-standardised when
-\code{downsample_method = "coverage"}; they are computed on observed
-counts directly.}
+\code{"standardised_n_clones"} computes coverage-standardised observed
+clone richness via \code{iNEXT::estimateD} with Hill number order
+\eqn{q = 0} and can only be requested if
+\code{downsample_method = "coverage"}.
+Default: \code{c("shannon", "inv.simpson", "gini.simpson", "chao1")}.}
 
 \item{downsample_method}{Character string specifying how to standardise
 sequencing depth across neighbourhoods before computing metrics.
@@ -63,20 +59,20 @@ One of:
 \item{\code{"rarefaction"}}{Random subsampling to the median contig
 count across valid neighbourhoods (base R implementation). The
 rarefaction depth is reported at runtime. Neighbourhoods whose contig
-count is at or below the rarefaction depth are not downsampled and are
-used as-is; this can occur frequently when neighbourhood sizes vary
-widely.  Rarefaction is preferred when communities are highly diverse
-or singleton-dominated, as it standardises sample size rather than
-coverage. \code{"chao1"} and \code{"ace"} are not rarefied; they are
-computed on observed counts and \code{<metric>_diversity_sd} is
-\code{NA} for these metrics.}
+count is at or below the rarefaction depth are not downsampled; this
+can occur frequently when neighbourhood sizes vary widely.  Rarefaction
+is preferred when communities are highly diverse or singleton-
+dominated, as it standardises sample size rather than coverage.
+\code{"chao1"} and \code{"ace"} are not rarefied; they are computed on
+observed counts and \code{<metric>_diversity_sd} is \code{NA} for these
+metrics.}
 \item{\code{"vegan_rarefaction"}}{As above, using
 \code{vegan::rrarefy}.  Requires the \pkg{vegan} package.  The same
 guidance on rarefaction depth interpretation and \code{"chao1"}/
 \code{"ace"} compatibility applies.}
 \item{\code{"coverage"}}{Coverage-based standardisation via
 \code{iNEXT::estimateD}. Requires the \pkg{iNEXT} package. The target
-coverage is set to the median Good's coverage (1 - singletons / n)
+coverage is set to the median Good's coverage (\eqn{1 - singletons / n})
 across valid neighbourhoods and is reported at runtime. Coverage-based
 standardisation is preferred when neighbourhood sizes are large and
 relatively uniform.  If the reported target coverage is very low (near
@@ -119,7 +115,7 @@ valid contig (\code{n_clones / n_contigs}). Values near 1 indicate
 high clonal diversity; values near 0 indicate strong clonal
 expansion.}
 \item{\code{coverage}}{Good's coverage estimate
-(1 - singletons / n_contigs).}
+(\eqn{1 - singletons / n_contigs}).}
 \item{\code{diversity_reliable}}{Logical; \code{TRUE} if
 \code{n_contigs >= min_n_contigs}.}
 \item{\code{<metric>_diversity}}{Estimated diversity for each
@@ -175,9 +171,8 @@ counted in \code{nhood_size}.
 
 \subsection{Metric selection}{
 
-The \code{.chao1_richness} helper uses the bias-corrected Chao1 formula
-(\eqn{S_{obs} + F_1(F_1-1) / (2(F_2+1))}) rather than the classic formula
-(\eqn{S_{obs} + F_1^2 / (2 F_2)}).
+The bias-corrected Chao1 formula (\eqn{S_{obs} + F_1(F_1-1) / (2(F_2+1))})
+is used rather than the classicformula (\eqn{S_{obs} + F_1^2 / (2 F_2)}).
 }
 
 \subsection{Downsampling and metric compatibility}{
