@@ -77,7 +77,7 @@ milo_obj <- nhood_cdr3_convergence(object = milo_obj,
                                   aa_col = c(VDJ = "aa_IGH", VJ = "aa_IGL"),
                                   clone_id_col = "clone",
                                   min_n_contigs = 10,
-                                  distance_method = "levenshtein", 
+                                  substitution_weighting = "levenshtein", 
                                   summary_metric = "converge_score",
                                   downsample = TRUE,
                                   n_boots = 100) 

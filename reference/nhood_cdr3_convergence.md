@@ -1,8 +1,9 @@
-# Compute CDR3 amino acid convergence scores across neighbourhoods
+# Compute inter-clonal CDR3 amino acid convergence scores per neighbourhood
 
-Computes a per neighbourhood summary convergence statistic of pairwise
-CDR3 amino acid sequence distances between B cell receptor (BCR) or T
-cell receptor (TCR) clones.
+Computes pairwise complementary determining region 3 (CDR3) amino acid
+sequence similarities between different B cell receptor (BCR) or T cell
+receptor (TCR) clones within a neighbourhood, and summarises this score
+per neighbourhood.
 
 ## Usage
 
@@ -16,7 +17,7 @@ nhood_cdr3_convergence(
   clone_id_col = NULL,
   min_n_contigs = 20L,
   min_clones = NULL,
-  distance_method = c("levenshtein", "blosum62", "custom"),
+  substitution_weighting = c("levenshtein", "blosum62", "custom"),
   substitution_matrix = NULL,
   summary_metric = "converge_score",
   knn_k = NULL,
@@ -46,9 +47,11 @@ nhood_cdr3_convergence(
 - receptor_type:
 
   Character string; one of `"BCR"` (default) or `"TCR"`. Controls
-  clone-level representative selection: for BCR, a centroid sequence is
-  chosen per clone (the sequence with the lowest mean pairwise distance
-  to all other members of the same clone). For TCR, unique sequences are
+  clone-level representative selection: for BCRs, CDR3 sequences
+  belonging to the same clone may have different sequences due to
+  somatic hypermutation (SHM), hence a centroid sequence is chosen per
+  clone (the sequence with the lowest mean pairwise distance to all
+  other members of the same clone). For TCRs, unique sequences can be
   used directly as representatives. Ignored if `clone_id_col` is `NULL`.
 
 - chain:
@@ -71,12 +74,12 @@ nhood_cdr3_convergence(
 - clone_id_col:
 
   Character string; name of the `colData` column containing clone
-  identifiers (e.g. output from a clonotyping tool). When supplied and
-  `receptor_type = "BCR"`, one centroid sequence is selected per clone
-  per neighbourhood. When `NULL` (default), all unique CDR3 sequences
-  are treated as individual representatives regardless of
-  `receptor_type`. If the column is not found in `colData`, a warning is
-  issued and the function falls back to unique-sequence mode.
+  identifiers. When supplied and `receptor_type = "BCR"`, one centroid
+  sequence is selected per clone per neighbourhood. When `NULL`
+  (default), all unique CDR3 sequences are treated as individual
+  representatives regardless of `receptor_type`. If the column is not
+  found in `colData`, a warning is issued and the function falls back to
+  unique-sequence mode.
 
 - min_n_contigs:
 
@@ -102,11 +105,9 @@ nhood_cdr3_convergence(
   `min_clones` to a value comfortably above the adaptive \\k\\ floor
   (e.g. `20`) to exclude such neighbourhoods, or inspect
   `<chain>_n_clones` in the output to identify small neighbourhoods
-  post-hoc. `converge_score` is reported as `NA` only when
-  `n_clones <= resolved_k`, since kNN cannot be computed when there are
-  insufficient sequences to form a neighbourhood.
+  post-hoc.
 
-- distance_method:
+- substitution_weighting:
 
   Character string; one of `"levenshtein"` (default), `"blosum62"`, or
   `"custom"`.
@@ -114,45 +115,38 @@ nhood_cdr3_convergence(
   `"levenshtein"`
 
   :   Flat substitution cost: 0 for identical amino acids, 1 for any
-      mismatch, normalised by the length of the longer sequence.
-      Equivalent to normalised edit distance.
+      mismatch.
 
   `"blosum62"`
 
   :   Substitution cost derived from BLOSUM62 via \\c(i,j) = (s(i,i) +
       s(j,j)) / 2 - s(i,j)\\, normalised to \\\[0, 1\]\\ by the maximum
-      off-diagonal cost. Biochemically similar amino acids incur lower
-      cost than dissimilar ones.
+      off-diagonal cost. Physicochemically similar amino acids incur
+      lower cost than dissimilar ones.
 
   `"custom"`
 
-  :   User-supplied substitution matrix passed via
-      `substitution_matrix`. Must follow the same sign convention as
-      [`pwalign::stringDist`](https://rdrr.io/pkg/pwalign/man/stringDist.html)
-      (higher score = more similar). See `substitution_matrix`.
+  :   User-supplied substitution weightings passed as a matrix to
+      `substitution_matrix`.
 
 - substitution_matrix:
 
-  A square numeric matrix with named rows and columns (single-letter
-  amino acid codes) to use when `distance_method = "custom"`. The matrix
-  must follow the
-  [`pwalign::stringDist`](https://rdrr.io/pkg/pwalign/man/stringDist.html)
-  sign convention: higher values indicate more similar amino acids (i.e.
-  a score matrix, not a cost matrix). Ignored unless
-  `distance_method = "custom"`.
+  A square numeric matrix with single-letter amino acid codes as named
+  rows and columns. The matrix must be bounded -1-0, where higher values
+  indicate more similar amino acids. Used when
+  `substitution_weighting = "custom"`.
 
 - summary_metric:
 
   Character vector; one or more of `"converge_score"` (default),
   `"converge_score_global"`, and `"converge_score_global_median"`.
-  Controls which summary convergence metrics are calculated and
-  returned:
+  Controls which summary convergence metrics are calculated:
 
   `"converge_score"`
 
-  :   kNN convergence score per neighbourhood. Captures local sequence
-      density. `NA` when `n_clones <= resolved_k` (kNN cannot be
-      computed), or when `min_clones` is supplied and not met.
+  :   Local convergence score computed via a kNN-based approach. `NA`
+      when `n_clones <= resolved_k`, or when `min_clones` is supplied
+      and not met.
 
   `"converge_score_global"`
 
@@ -171,12 +165,11 @@ nhood_cdr3_convergence(
 
   Integer or `NULL` (default). Number of nearest neighbours to use when
   computing `converge_score`. When `NULL`, \\k\\ is set adaptively to
-  \\\lfloor 0.25 \times n\_{\text{reps}} \rfloor\\ per neighbourhood. A
-  floor of 3 ensures the metric captures more than just the nearest
-  pairwise comparisons. When a fixed integer is supplied it is used
-  as-is with no clamping applied. Within each bootstrap subsample \\k\\
-  is additionally capped at \\n - 1\\ to guard against subsamples
-  smaller than \\k\\.
+  \\\lfloor 0.25 \times n\_{\text{reps}} \rfloor\\ per neighbourhood. 3
+  is the minimum permitted adaptive \\k\\ to ensure the metric captures
+  more than just the nearest pairwise comparisons (not applied to a
+  fixed \\k\\). Within each bootstrap subsample \\k\\ is additionally
+  capped at \\n - 1\\ to guard against subsamples smaller than \\k\\.
 
 - downsample:
 
@@ -200,11 +193,7 @@ nhood_cdr3_convergence(
   When `downsample = TRUE` and `"converge_score"` is in
   `summary_metric`, the effective sample size for kNN computation within
   each bootstrap iteration is the downsampling depth rather than the
-  full representative count. If this depth is \\\leq\\ \\k\\,
-  `converge_score` will be `NA` for all downsampled neighbourhoods and a
-  warning is emitted. In this scenario, set `downsample = FALSE` or use
-  `summary_metric = "converge_score_global"` to obtain values for all
-  neighbourhoods.
+  full representative count.
 
 - seed:
 
@@ -327,56 +316,113 @@ Where `chain = "both"`, columns are present for both `VDJ` and `VJ`
 chains.
 
 The returned `data.frame` also carries the following attributes
-recording the analysis parameters: `receptor_type`, `distance_method`,
-`chains`, `downsample_depths`, `min_n_contigs`, `min_clones`,
-`downsample`, `n_boots`, `summary_metric`.
+recording the analysis parameters: `receptor_type`,
+`substitution_weighting`, `chains`, `downsample_depths`,
+`min_n_contigs`, `min_clones`, `downsample`, `n_boots`,
+`summary_metric`.
 
 ## Details
 
-### Distance computation pipeline
+### Summary of steps
 
 For each neighbourhood the following steps are performed:
 
-1.  Cells are filtered to those with valid CDR3 annotation.
+1.  A single pairwise distance matrix is computed over all unique CDR3
+    sequences per neighbourhood.
 
-2.  A single pairwise distance matrix is computed over all unique CDR3
-    sequences. Distances are normalised to \\\[0, 1\]\\ by dividing each
-    raw pairwise distance by the length of the longer sequence in that
-    pair.
-
-3.  For BCR data with clone labels, one centroid sequence is selected
+2.  For BCR data with clone labels, one centroid sequence is selected
     per clone as the sequence with the lowest mean pairwise distance to
     all other unique sequences within that clone in the neighbourhood.
     The raw pairwise distance matrix is filtered to these centroids.
 
-4.  If `downsample = TRUE` and the number of representatives exceeds the
+3.  If `downsample = TRUE` and the number of representatives exceeds the
     target depth, bootstrapped subsampling is performed over the
     pre-computed distance matrix (no re-alignment), and summary
     statistics are averaged across iterations.
 
-### Supported distance methods
+4.  The distance matrix is summarised per neighbourhood using the
+    requested metric
 
-The function supports three distance methods: Levenshtein edit distance,
-BLOSUM62-derived substitution cost, and a user-supplied custom matrix,
-all normalised to 0-1 by the length of the longer sequence in each pair.
+### Object type handling
+
+- **Milo objects**: Neighbourhood membership is read directly from the
+  sparse `nhoods` matrix via
+  [`nhoods`](https://marionilab.github.io/miloR/reference/methods.html).
+  Row names of this matrix must match `colnames(object)`; a mismatch
+  raises an error to prevent silent misassignment.
+
+- **Plain SingleCellExperiment objects**: A binary neighbourhood
+  membership matrix is constructed internally from the column specified
+  by `nhood_col`. Cells with `NA` assignments are excluded with a
+  warning.
+
+### Distance calculation methods
+
+Pairwise distances are computed using
+[`pwalign::stringDist()`](https://bioconductor.org/packages/release/bioc/manuals/pwalign/man/pwalign.pdf)
+across all unique CDR3 amino acid sequences per neighbourhood exceeding
+min_n_contigs and optionally min_clones. CDR3 sequences can differ via
+insertions, deletions or substitutions. In all cases, insertions and
+deletions are assigned a cost of 1. For Levenshtein distances, all
+substitutions also incur a cost of 1. Substitutions can also be weighted
+according to their physicochemical significance via blosum-weighted
+scores. The raw BLOSUM substitution matrix is converted to a cost matrix
+via \\c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)\$\\. This cost matrix is
+then normalised to 0-1 by dividing each cost by the maximum off-diagonal
+cost. The normalised cost matrix is then negated such that the most
+costly amino acid substitutions score -1 and the least significant
+substitutions score 0. If the user wishes to use an alternative method
+of substitution weighting, they must provide their own substitution
+matrix which matches the same logic (bounded -1-0, more similar amino
+acids have a higher score). Overall, independent of the substituion
+scoring used, the maximum distance that can be achieved is the length of
+the longest sequence (all amino acids substituted incurrring the maximum
+possible cost if blosum-weighted or custom substitution scores have been
+used, insertion of the extra amino acids necessary to account for
+sequence length variation). All distances are subsequently normalised to
+0-1 by dividing by the length of the longer sequence.
+
+### Selecting a representative sequence for BCRs
+
+Pairwise distances are computed between all unique CDR3 amino acid
+sequences per aggregate using the above method. However, for BCRs, some
+of these unique sequences belong to the same clone due to the effects of
+somatic hypermutation. In this scenario, the CDR3 sequence with the
+lowest average pairwise distance to all other sequences in the clone is
+selected. All other sequences are discarded from the per aggregate
+distance matrix, such that it contains only one sequence per clone.
 
 ### Downsampling depth
 
 Downsampling is recommended where neighbourhood sizes differ
-substantially to ensure distances are comparable across neighbourhoods.
-The downsampling depth is the median number of unique representatives
-across all neighbourhoods that pass `min_n_contigs`, excluding
-singleton- representative neighbourhoods. This is computed separately
-per chain when `chain = "both"`, as VDJ and VJ clone counts can differ.
-The depth is reported in the progress messages emitted to the console.
+substantially to ensure distances are comparable across
+neighbourhoods.The downsampling depth is the median number of unique
+representatives across all neighbourhoods that pass `min_n_contigs`,
+excluding singleton- representative neighbourhoods. This is computed
+separately per chain when `chain = "both"`, as VDJ and VJ clone counts
+can differ. The depth is reported in the progress messages emitted to
+the console.
 
-### Neighbourhood size and capture rate
+### Summarising the distance matrix and obtaining a convergence score
 
-`nhood_size` and `contig_capture_rate` are based on all cells assigned
-to the neighbourhood in the binary nhoods matrix, regardless of contig
-annotation status. This reflects the overall cellular composition of the
-neighbourhood rather than immune cell abundance alone, and is the
-intended denominator for capture rate.
+The distance matrix is then summarised to obtain a singular convergence
+score representing the similarity of CDR3 sequences of different clones
+per aggregate. This can be a global convergence score, defined as the
+mean or median pairwise distance across all representative CDR3
+sequences, or a local score. Local convergence scores are computed as
+the mean distance of each CDR3 sequence to its k nearest neighbours,
+averaged across all representatives in the aggregate. This metric is
+more sensitive to repertoire structure than a global average. For
+example, a neighbourhood containing clones that respond to two distinct
+epitopes would contain two clusters of highly similar CDR3s that are
+dissimilar from one another. Here, global convergence would be high due
+to the difference between these two antigens, whilst local convergence
+would reflect sequence similarity within these two groups. By default, k
+is set adaptively at n/4,where n is the number of representatives, with
+a minimum k of 3; a fixed k can also be supplied. Local convergence is
+not calculated when the number of representatives does not exceed k. All
+distance-based metrics are converted to convergence scores via 1 -
+distance.
 
 ### Parallelisation
 
@@ -386,6 +432,14 @@ separate task via
 [`SerialParam`](https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html)
 (default), progress is reported at every 10\\ progress is suppressed; a
 completion summary is printed after collation.
+
+### Neighbourhood size and capture rate
+
+`nhood_size` and `contig_capture_rate` are based on all cells assigned
+to the neighbourhood in the binary nhoods matrix, regardless of contig
+annotation status. This reflects the overall cellular composition of the
+neighbourhood rather than immune cell abundance alone, and is the
+intended denominator for capture rate.
 
 ## See also
 
@@ -419,9 +473,9 @@ milo <- nhood_cdr3_convergence(
   receptor_type   = "TCR",
   chain           = "both",
   aa_col          = c(VDJ = "cdr3_aa_TRB", VJ = "cdr3_aa_TRA"),
-  distance_method = "blosum62",
+  substitution_weighting = "blosum62",
   summary_metric  = c("converge_score", "converge_score_global", "converge_score_global_median"),
-  min_n_contigs     = 5,
+  min_n_contigs   = 5,
   seed            = 42,
   BPPARAM         = BiocParallel::MulticoreParam(workers = 4)
 )
@@ -435,7 +489,7 @@ sce <- nhood_cdr3_convergence(
   aa_col              = "cdr3_aa_heavy",
   clone_id_col        = "clone_id",
   nhood_col           = "nhood_id",
-  distance_method     = "custom",
+  substitution_weighting  = "custom",
   substitution_matrix = custom_mat,
   seed                = 42
 )

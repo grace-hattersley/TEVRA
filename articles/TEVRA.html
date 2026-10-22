@@ -307,7 +307,7 @@ selected by the user:</p>
 <li><code>gini</code></li>
 <li><code>standardised_n_clones</code></li>
 </ul>
-<p>If clones have not been defined, the cdr3 nucleotide sequence can be
+<p>If clones have not been defined, the CDR3 nucleotide sequence can be
 used as a surrogate, but this is not recommended for B cells due to the
 potential for significant sequence modification within clones through
 somatic hypermutation. Metrics are not computed for aggregates with less
@@ -398,15 +398,15 @@ per aggregate. Must exceed <code>min_clones</code>.</li>
 <code>min_clones</code>: the minimum number of clones required per
 aggregate.</li>
 <li>
-<code>distance_method</code>: CDR3 sequences can differ by either
-insertions, deletions or substitutions. All insertions or deletions
-incur a cost of 1. Using Levenshtein distances, all substitutions also
-incur a cost of 1. Using blosum-weighted distances, the cost of
-substitutions is weighted according to the physicochemical significance
-of this substitution (see the end of the vignette for more details). A
-custom substitution matrix can also be supplied with unique substitution
-weightings, ranging from -1 (least costly substitution) to 0 (most
-costly substitution).</li>
+<code>substitution_weighting</code>: CDR3 sequences can differ by
+either insertions, deletions or substitutions. All insertions or
+deletions incur a cost of 1. Using Levenshtein distances, all
+substitutions also incur a cost of 1. Using blosum-weighted distances,
+the cost of substitutions is weighted according to the physicochemical
+significance of this substitution (see the end of the vignette for more
+details). A custom substitution matrix can also be supplied with unique
+substitution weightings, ranging from -1 (most costly substitution) to 0
+(least costly substitution).</li>
 <li>
 <code>summary_metric</code>: inter-clonal convergence scores are
 summarised per aggregate either globally by providing the mean or median
@@ -429,7 +429,7 @@ across aggregates.</li>
 <span>                                  clone_id_col <span class="op">=</span> <span class="st">"CTstrict_BCR"</span>,</span>
 <span>                                  min_n_contigs <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                                  min_clones <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>                                  distance_method <span class="op">=</span> <span class="st">"levenshtein"</span>, </span>
+<span>                                  substitution_weighting <span class="op">=</span> <span class="st">"levenshtein"</span>, </span>
 <span>                                  summary_metric <span class="op">=</span> <span class="st">"converge_score"</span>,</span>
 <span>                                  downsample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                                  n_boots <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -692,32 +692,32 @@ sequences per neighbourhood exceeding min_n_contigs and optionally
 min_clones. CDR3 sequences can differ via insertions, deletions or
 substitutions. In all cases, insertions and deletions are assigned a
 cost of 1. For Levenshtein distances, all substitutions also incur a
-cost of 1, hence the maximum cost is the length of the longest sequence
-(all amino acids substituted, insertion of the extra amino acids
-necessary to account for sequence length variation). Substitutions can
-also be weighted according to their biological significance via
-blosum-weighted scores. The raw BLOSUM substitution matrix is converted
-to a cost matrix via <span class="math inline">\(c(i,j) = (s(i,i) +
-s(j,j))/2 - s(i,j)\)</span>. This cost matrix is then normalised to
-[0,1] by dividing each cost by the maximum off-diagonal cost. The
-normalised cost matrix is then negated such that the most costly amino
-acid substitutions score -1 and the least significant substitutions
-score 0. Overall, the maximum distances computed using blosum-weighted
-substitutions is also the length of the longest sequence, which would be
-acheived if all amino acids substitutions were the most costly
-substitution. If the user wishes to use an alternative method of
-substitution weighting, they must provide their own substitution matrix
-which matches the same logic (bounded [-1,0], more similar amino acids
-have a higher score).</p>
+cost of 1. Substitutions can also be weighted according to their
+physicochemical significance via blosum-weighted scores. The raw BLOSUM
+substitution matrix is converted to a cost matrix via <span class="math inline">\(c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)\)</span>.
+This cost matrix is then normalised to [0,1] by dividing each cost by
+the maximum off-diagonal cost. The normalised cost matrix is then
+negated such that the most costly amino acid substitutions score -1 and
+the least significant substitutions score 0. If the user wishes to use
+an alternative method of substitution weighting, they must provide their
+own substitution matrix which matches the same logic (bounded [-1,0],
+more similar amino acids have a higher score). Overall, independent of
+the substituion scoring used, the maximum distance that can be achieved
+is the length of the longest sequence (all amino acids substituted
+incurrring the maximum possible cost if blosum-weighted or custom
+substitution scores have been used, insertion of the extra amino acids
+necessary to account for sequence length variation). All distances are
+subsequently normalised to [0,1] by dividing by the length of the longer
+sequence.</p>
 <div class="figure" style="text-align: center">
 <img src="figures/blosum.png" class="r-plt" alt="Transformation of BLOSUM62 substitution score matrix" width="95%"><p class="caption">
 Transformation of BLOSUM62 substitution score matrix
 </p>
 </div>
-<p>Pairwise distances are computed between all CDR3 amino acid sequences
-per aggregate using the above method. However, for BCRs, some of these
-unique sequences belong to the same clone. In this scenario, the CDR3
-sequence with the lowest average pairwise distance to all other
+<p>Pairwise distances are computed between all unique CDR3 amino acid
+sequences per aggregate using the above method. However, for BCRs, some
+of these unique sequences belong to the same clone. In this scenario,
+the CDR3 sequence with the lowest average pairwise distance to all other
 sequences in the clone is selected. All other sequences are discarded
 from the matrix, such that it contains only one sequence per clone.</p>
 <p>The distance matrix is then summarised to obtain a singular

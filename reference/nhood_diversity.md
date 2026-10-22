@@ -165,7 +165,7 @@ following columns:
 
 - `coverage`:
 
-  Good's coverage estimate (\\1 - singletons / n_contigs\\).
+  Good's coverage estimate (\\1 - singletons / n\\).
 
 - `diversity_reliable`:
 

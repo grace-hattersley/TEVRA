@@ -1,7 +1,7 @@
 # Calculate Neighbourhood Somatic Hypermutation Statistics
 
 Computes per-neighbourhood somatic hypermutation (SHM) summary
-statistics from BCR (B cell receptor) data stored in `colData`. For each
+statistics from B cell receptor (BCR) data stored in `colData`. For each
 neighbourhood, the function aggregates SHM metrics across cells that
 carry BCR information, and flags neighbourhoods with insufficient BCR
 coverage as unreliable.

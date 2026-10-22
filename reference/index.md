@@ -34,7 +34,8 @@ Compute receptor repertoire features for each neighbourhood.
 - [`nhood_shm()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_shm.md)
   : Calculate Neighbourhood Somatic Hypermutation Statistics
 - [`nhood_cdr3_convergence()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_cdr3_convergence.md)
-  : Compute CDR3 amino acid convergence scores across neighbourhoods
+  : Compute inter-clonal CDR3 amino acid convergence scores per
+  neighbourhood
 - [`nhood_cdr3_convergence_matrices()`](https://grace-hattersley.github.io/TEVRA/reference/nhood_cdr3_convergence_matrices.md)
   : Extract pairwise CDR3 convergence matrices for selected
   neighbourhoods
