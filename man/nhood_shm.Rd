@@ -73,7 +73,7 @@ The data frame also carries the following attributes:
 }
 \description{
 Computes per-neighbourhood somatic hypermutation (SHM) summary statistics
-from BCR (B cell receptor) data stored in \code{colData}. For each
+from B cell receptor (BCR) data stored in \code{colData}. For each
 neighbourhood, the function aggregates SHM metrics across cells that carry
 BCR information, and flags neighbourhoods with insufficient BCR coverage as
 unreliable.

@@ -132,7 +132,7 @@ be selected by the user:
 - `gini`
 - `standardised_n_clones`
 
-If clones have not been defined, the cdr3 nucleotide sequence can be used as a surrogate,
+If clones have not been defined, the CDR3 nucleotide sequence can be used as a surrogate,
 but this is not recommended for B cells due to the potential for 
 significant sequence modification within clones through somatic hypermutation. 
 Metrics are not computed for aggregates with less than `min_n_contigs` as 
@@ -170,20 +170,28 @@ The key metrics are:
 
 - `receptor_type`: for TCRs, similarity scores are computed between each unique 
 CDR3 sequence as these represent unique clones. For BCRs, somatic hypermutation 
-enables CDR3 sequences of the same clone to have different sequences. Hence, a representative centroid is first selected per clone as the CDR3 sequence that is 
+enables CDR3 sequences of the same clone to have different sequences. Hence, a 
+representative centroid is first selected per clone as the CDR3 sequence that is 
 the most similar to other CDR3 sequences of that clone.
 - `min_n_contigs`: the minimum number of contigs required per aggregate. Must 
 exceed `min_clones`.
 - `min_clones`: the minimum number of clones required per aggregate.
 - `distance_method`: CDR3 sequences can differ by either insertions, deletions 
 or substitutions. All insertions or deletions incur a cost of 1. Using 
-Levenshtein distances, all substitutions also incur a cost of 1. Using blosum-weighted distances, the cost of substitutions is weighted according to the 
+Levenshtein distances, all substitutions also incur a cost of 1. Using 
+blosum-weighted distances, the cost of substitutions is weighted according to the 
 physicochemical significance of this substitution (see the end of the vignette for 
 more details). A custom substitution matrix can also be supplied with unique 
-substitution weightings, ranging from -1 (least costly substitution) to 0 (most 
+substitution weightings, ranging from -1 (most costly substitution) to 0 (least 
 costly substitution).
-- `summary_metric`: inter-clonal convergence scores are summarised per aggregate either globally by providing the mean or median score or locally. Local convergence scores report the mean distance of each CDR3 sequence to its $k$ nearest neighbours, averaged per aggregate (see the end of the vignette for more details).
-- `downsample`: if TRUE (default), matrices of clonal convergence scores are downsampled to the median clonal count over `n_boots` iterations to control for variation in clone number across aggregates.
+- `summary_metric`: inter-clonal convergence scores are summarised per aggregate 
+either globally by providing the mean or median score or locally. Local 
+convergence scores report the mean distance of each CDR3 sequence to its $k$ 
+nearest neighbours, averaged per aggregate (see the end of the vignette for more 
+details).
+- `downsample`: if TRUE (default), matrices of clonal convergence scores are 
+downsampled to the median clonal count over `n_boots` iterations to control for 
+variation in clone number across aggregates.
 
 ```{r nhood_cdr3_convergence}
 sce_obj <- nhood_cdr3_convergence(object = sce_obj,
@@ -204,8 +212,9 @@ sce_obj <- nhood_cdr3_convergence(object = sce_obj,
 head(metadata(sce_obj)$nhood_cdr3_convergence)
 ```
 
-To investigate the raw convergence matrices without 
-neighbourhood-level summarisation, run `nhood_cdr3_convergence_matrices()`, which can be plotted as a heatmap.
+To investigate the raw convergence matrices without neighbourhood-level 
+summarisation, run `nhood_cdr3_convergence_matrices()`, which can be plotted as 
+a heatmap.
 
 ```{r convergence matrices, echo=FALSE, out.width="80%", fig.align="center",  fig.cap="Convergence matrix examples"}
 knitr::include_graphics("figures/conv_matrices.png")
@@ -303,12 +312,30 @@ plot_nhood_scatter(metadata(sce_obj)$merged_nhood_analysis,
 
 ## Additional details on inter-clonal CDR3 convergence
 Pairwise distances are computed via *pwalign*'s `stringDist()` function across 
-all unique CDR3 amino acid sequences per neighbourhood exceeding min_n_contigs and optionally min_clones. CDR3 sequences can differ via insertions, deletions or substitutions. In all cases, insertions and deletions are assigned a cost of 1. For Levenshtein distances, all substitutions also incur a cost of 1, hence the maximum cost is the length of the longest sequence (all amino acids substituted, insertion of the extra amino acids necessary to account for sequence length variation). Substitutions can also be weighted according to their biological significance via blosum-weighted scores. The raw BLOSUM substitution matrix is converted to a cost matrix via $c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)$. This cost matrix is then normalised to [0,1] by dividing each cost by the maximum off-diagonal cost. The normalised cost matrix is then negated such that the most costly amino acid substitutions score -1 and the least significant substitutions score 0. Overall, the maximum distances computed using blosum-weighted substitutions is also the length of the longest sequence, which would be acheived if all amino acids substitutions were the most costly substitution. If the user wishes to use an alternative method of substitution weighting, they must provide their own substitution matrix which matches the same logic (bounded [-1,0], more similar amino acids have a higher score). 
+all unique CDR3 amino acid sequences per neighbourhood exceeding min_n_contigs 
+and optionally min_clones. CDR3 sequences can differ via insertions, deletions 
+or substitutions. In all cases, insertions and deletions are assigned a cost of 
+1. For Levenshtein distances, all substitutions also incur a cost of 1. 
+Substitutions can also be weighted according to their physicochemical 
+significance via blosum-weighted scores. The raw BLOSUM substitution matrix is 
+converted to a cost matrix via $c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)$. This 
+cost matrix is then normalised to [0,1] by dividing each cost by the maximum 
+off-diagonal cost. The normalised cost matrix is then negated such that the most 
+costly amino acid substitutions score -1 and the least significant substitutions 
+score 0. If the user wishes to use an alternative method of substitution 
+weighting, they must provide their own substitution matrix which matches the 
+same logic (bounded [-1,0], more similar amino acids have a higher score). 
+Overall, independent of the substituion scoring used, the maximum distance that 
+can be achieved is the length of the longest sequence (all amino acids 
+substituted incurrring the maximum possible cost if blosum-weighted or custom 
+substitution scores have been used, insertion of the extra amino acids necessary 
+to account for sequence length variation). All distances are subsequently 
+normalised to [0,1] by dividing by the length of the longer sequence.
 
 ```{r blosum substitution scores, echo=FALSE, out.width="95%", fig.align="center",  fig.cap="Transformation of BLOSUM62 substitution score matrix"}
 knitr::include_graphics("figures/blosum.png")
 ```
 
-Pairwise distances are computed between all CDR3 amino acid sequences per aggregate using the above method. However, for BCRs, some of these unique sequences belong to the same clone. In this scenario, the CDR3 sequence with the lowest average pairwise distance to all other sequences in the clone is selected. All other sequences are discarded from the matrix, such that it contains only one sequence per clone.
+Pairwise distances are computed between all unique CDR3 amino acid sequences per aggregate using the above method. However, for BCRs, some of these unique sequences belong to the same clone. In this scenario, the CDR3 sequence with the lowest average pairwise distance to all other sequences in the clone is selected. All other sequences are discarded from the matrix, such that it contains only one sequence per clone.
 
 The distance matrix is then summarised to obtain a singular convergence score representing the similarity of CDR3 sequences of different clones per aggregate. This can be a global convergence score, defined as the mean or median pairwise distance across all representative CDR3 sequences, or a local score. Local convergence scores are computed as the mean distance of each CDR3 sequence to its $k$ nearest neighbours, averaged across all representatives in the aggregate. This metric is more sensitive to repertoire structure than a global average. For example, a neighbourhood containing clones that respond to two distinct epitopes would contain two clusters of highly similar CDR3s that are dissimilar from one another. Here, global convergence would be high due to the difference between these two antigens, whilst local convergence would reflect sequence similarity within these two groups. By default, $k$ is set adaptively at $n/4$,where $n$ is the number of representatives, with a minimum $k$ of 3; a fixed $k$ can also be supplied. Local convergence is not calculated when the number of representatives does not exceed $k$. All distance-based metrics are converted to convergence scores via $1 - distance$. 

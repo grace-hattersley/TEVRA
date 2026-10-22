@@ -91,7 +91,7 @@
 #'       high clonal diversity; values near 0 indicate strong clonal
 #'       expansion.}
 #'     \item{\code{coverage}}{Good's coverage estimate
-#'       (\eqn{1 - singletons / n_contigs}).}
+#'       (\eqn{1 - singletons / n}).}
 #'     \item{\code{diversity_reliable}}{Logical; \code{TRUE} if
 #'       \code{n_contigs >= min_n_contigs}.}
 #'     \item{\code{<metric>_diversity}}{Estimated diversity for each
