@@ -176,7 +176,7 @@ the most similar to other CDR3 sequences of that clone.
 - `min_n_contigs`: the minimum number of contigs required per aggregate. Must 
 exceed `min_clones`.
 - `min_clones`: the minimum number of clones required per aggregate.
-- `distance_method`: CDR3 sequences can differ by either insertions, deletions 
+- `substitution_weighting`: CDR3 sequences can differ by either insertions, deletions 
 or substitutions. All insertions or deletions incur a cost of 1. Using 
 Levenshtein distances, all substitutions also incur a cost of 1. Using 
 blosum-weighted distances, the cost of substitutions is weighted according to the 
@@ -202,7 +202,7 @@ sce_obj <- nhood_cdr3_convergence(object = sce_obj,
                                   clone_id_col = "CTstrict_BCR",
                                   min_n_contigs = 10,
                                   min_clones = NULL,
-                                  distance_method = "levenshtein", 
+                                  substitution_weighting = "levenshtein", 
                                   summary_metric = "converge_score",
                                   downsample = TRUE,
                                   n_boots = 100,
