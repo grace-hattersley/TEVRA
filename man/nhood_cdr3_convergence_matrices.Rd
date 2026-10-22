@@ -162,18 +162,18 @@ Pairwise distances are computed using
 across all unique CDR3 amino acid sequences per neighbourhood requested
 exceeding min_n_contigs and optionally min_clones. CDR3 sequences can differ
 via insertions, deletions or substitutions. In all cases, insertions and
-deletions are assigned a cost of 1. For Levenshtein distances, all
+deletions are assigned a cost of 1. When \code{substitution_weighting = "levenshtein"}, all
 substitutions also incur a cost of 1. Substitutions can also be weighted
-according to their physicochemical significance via blosum-weighted scores.
+according to their physicochemical significance when \code{substitution_weighting = "blosum62"}.
 The raw BLOSUM substitution matrix is converted to a cost matrix via
-\eqn{c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)$}. This cost matrix is then
+\eqn{c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)}. This cost matrix is then
 normalised to 0-1 by dividing each cost by the maximum off-diagonal cost.
 The normalised cost matrix is then negated such that the most costly amino
 acid substitutions score -1 and the least significant substitutions score 0.
-If the user wishes to use an alternative method of substitution weighting,
+If the user wishes to use an alternative method of substitution weighting via \code{substitution_weighting = "custom"},
 they must provide their own substitution matrix which matches the same logic
 (bounded -1-0, more similar amino acids have a higher score). Overall,
-independent of the substituion scoring used, the maximum distance that can be
+independent of the substitution scoring used, the maximum distance that can be
 achieved is the length of the longest sequence (all amino acids substituted
 incurrring the maximum possible cost if blosum-weighted or custom
 substitution scores have been used, insertion of the extra amino acids
