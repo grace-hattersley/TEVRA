@@ -360,27 +360,29 @@ For each neighbourhood the following steps are performed:
 
 Pairwise distances are computed using
 [`pwalign::stringDist()`](https://bioconductor.org/packages/release/bioc/manuals/pwalign/man/pwalign.pdf)
-across all unique CDR3 amino acid sequences per neighbourhood exceeding
-min_n_contigs and optionally min_clones. CDR3 sequences can differ via
-insertions, deletions or substitutions. In all cases, insertions and
-deletions are assigned a cost of 1. For Levenshtein distances, all
-substitutions also incur a cost of 1. Substitutions can also be weighted
-according to their physicochemical significance via blosum-weighted
-scores. The raw BLOSUM substitution matrix is converted to a cost matrix
-via \\c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)\$\\. This cost matrix is
-then normalised to 0-1 by dividing each cost by the maximum off-diagonal
+across all unique CDR3 amino acid sequences per neighbourhood requested
+exceeding min_n_contigs and optionally min_clones. CDR3 sequences can
+differ via insertions, deletions or substitutions. In all cases,
+insertions and deletions are assigned a cost of 1. When
+`substitution_weighting = "levenshtein"`, all substitutions also incur a
+cost of 1. Substitutions can also be weighted according to their
+physicochemical significance when `substitution_weighting = "blosum62"`.
+The raw BLOSUM substitution matrix is converted to a cost matrix via
+\\c(i,j) = (s(i,i) + s(j,j))/2 - s(i,j)\\. This cost matrix is then
+normalised to 0-1 by dividing each cost by the maximum off-diagonal
 cost. The normalised cost matrix is then negated such that the most
 costly amino acid substitutions score -1 and the least significant
 substitutions score 0. If the user wishes to use an alternative method
-of substitution weighting, they must provide their own substitution
-matrix which matches the same logic (bounded -1-0, more similar amino
-acids have a higher score). Overall, independent of the substituion
-scoring used, the maximum distance that can be achieved is the length of
-the longest sequence (all amino acids substituted incurrring the maximum
-possible cost if blosum-weighted or custom substitution scores have been
-used, insertion of the extra amino acids necessary to account for
-sequence length variation). All distances are subsequently normalised to
-0-1 by dividing by the length of the longer sequence.
+of substitution weighting via `substitution_weighting = "custom"`, they
+must provide their own substitution matrix which matches the same logic
+(bounded -1-0, more similar amino acids have a higher score). Overall,
+independent of the substitution scoring used, the maximum distance that
+can be achieved is the length of the longest sequence (all amino acids
+substituted incurrring the maximum possible cost if blosum-weighted or
+custom substitution scores have been used, insertion of the extra amino
+acids necessary to account for sequence length variation). All distances
+are subsequently normalised to 0-1 by dividing by the length of the
+longer sequence.
 
 ### Selecting a representative sequence for BCRs
 
