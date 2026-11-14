@@ -1,24 +1,29 @@
 url: https://grace-hattersley.github.io/TEVRA/
+
 home:
-  title: "TEVRA: mapping single-cell BCR/TCR analysis to transcriptional aggregates in R"
-  description: TEVRA is an R package that maps V(D)J immune repertoire features (clonal diversity, CDR3 convergence, SHM) onto transcriptional aggregates defined from single-cell RNA-seq data.
+  title: "TEVRA: single-cell BCR/TCR repertoire analysis in R"
+  description: "TEVRA is an R package that maps V(D)J immune repertoire features (clonal diversity, CDR3 convergence, SHM) onto transcriptional aggregates defined from single-cell RNA-seq data."
+
 template:
   bootstrap: 5
   math-rendering: mathjax
   includes:
     in_header: |
       <meta name="google-site-verification" content="beqXSJEkp_aLSuEtVXUXSOl5SMJ7aluG8zy9vBYmLBc" />
-opengraph:
-  image:
+  opengraph:
+    image:
       src: man/figures/TEVRA_preview.png
       alt: "TEVRA: mapping immune repertoire features onto single-cell aggregates"
-      twitter: @ColinYCLee
-      card: summary_large_image
+  twitter:
+    creator: "@ColinYCLee"
+    card: summary_large_image
+
 navbar:
   components:
     intro:
       text: Vignette
       href: articles/TEVRA.html
+
 reference:
 - title: Neighbourhood construction
   desc: Define transcriptional neighbourhoods and choose a clustering resolution.
@@ -50,4 +55,3 @@ reference:
   - plot_capture_efficiency
 - title: Example data
   contents: tevra_example
-
