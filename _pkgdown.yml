@@ -2,6 +2,9 @@ url: https://grace-hattersley.github.io/TEVRA/
 template:
   bootstrap: 5
   math-rendering: mathjax
+  includes:
+    in_header: |
+      <meta name="google-site-verification" content="beqXSJEkp_aLSuEtVXUXSOl5SMJ7aluG8zy9vBYmLBc" />
 navbar:
   components:
     intro:
