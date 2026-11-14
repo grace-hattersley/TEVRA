@@ -107,8 +107,8 @@ I) CDR3 convergence score by community, grouped into cell type. CDR3 convergence
 
 If you use TEVRA, please cite:
 
-> Hattersley G, Lee C (2026). <TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates>. R package version
-> <0.0.0.9000>, https://github.com/grace-hattersley/TEVRA.
+> Hattersley GJ, Lee CYC (2026). TEVRA: Computes and Maps AIRR Features onto Transcriptionally Defined Cellular Aggregates. R package version
+> 0.0.0.9000, https://github.com/grace-hattersley/TEVRA.
 
 ### Acknowledgements
 
