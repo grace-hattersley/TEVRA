@@ -6,3 +6,7 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^README\.Rmd$
+^README\.html$
+^\.Rapp\.history$
+^data/\.Rapp\.history$

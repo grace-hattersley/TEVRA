@@ -6,3 +6,6 @@
 .quarto
 inst/doc
 docs
+.Rapp.history
+.Rproj.user/
+README.html
