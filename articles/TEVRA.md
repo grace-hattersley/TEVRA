@@ -425,25 +425,25 @@ head(metadata(sce_obj)$nhood_cdr3_convergence)
 #> 5     5         80            26               0.3250000           25
 #> 6     6         58             9               0.1551724            8
 #>   VDJ_converge_score_reliable CDR3_converge_score_VDJ
-#> 1                        TRUE                0.578668
-#> 2                        TRUE                0.576261
+#> 1                        TRUE                0.575024
+#> 2                        TRUE                0.574380
 #> 3                        TRUE                0.550000
-#> 4                        TRUE                0.593832
-#> 5                        TRUE                0.583904
+#> 4                        TRUE                0.590497
+#> 5                        TRUE                0.585042
 #> 6                       FALSE                      NA
 #>   CDR3_converge_score_sd_VDJ VJ_n_contigs VJ_contig_capture_rate VJ_n_clones
-#> 1                 0.02072197           43              0.4343434          41
-#> 2                 0.01761828           29              0.5918367          27
+#> 1                 0.01730250           43              0.4343434          41
+#> 2                 0.01755402           29              0.5918367          27
 #> 3                         NA           12              0.1445783          11
-#> 4                 0.01817885           42              0.5000000          35
-#> 5                 0.01668564           40              0.5000000          36
+#> 4                 0.01738605           42              0.5000000          35
+#> 5                 0.01724068           40              0.5000000          36
 #> 6                         NA           24              0.4137931          23
 #>   VJ_converge_score_reliable CDR3_converge_score_VJ CDR3_converge_score_sd_VJ
-#> 1                       TRUE               0.691739               0.017611755
-#> 2                       TRUE               0.634082               0.003144673
+#> 1                       TRUE               0.689992                0.01677804
+#> 2                       TRUE               0.633573                0.00337782
 #> 3                       TRUE               0.635000                        NA
-#> 4                       TRUE               0.647581               0.012022132
-#> 5                       TRUE               0.641388               0.015655762
+#> 4                       TRUE               0.646727                0.01111627
+#> 5                       TRUE               0.642043                0.01603154
 #> 6                       TRUE               0.656900                        NA
 ```
 
